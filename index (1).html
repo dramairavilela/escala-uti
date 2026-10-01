@@ -1,0 +1,1096 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Escala UTI Adulto · Outubro 2026</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..100,500..800&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style><style id="app-style">
+/* Layout: quadro de plantão — cabeçalho, barra de filtros fixa, resumo, abas (calendário, lista, férias, equipe, edição) */
+:root{
+  --bg:#edf1f3; --surface:#ffffff; --sunk:#e3e9ec; --ink:#14212b; --muted:#566874; --line:#d3dce1;
+  --accent:#0c6a64; --accent-ink:#ffffff; --accent-soft:#d5ebe8;
+  --m:#f2c86b; --t:#e48a4c; --n:#33476b;
+  --falta:#bf2f28; --extra:#1d5cbf; --cong:#2b7a37; --abono:#6f6582; --amam:#9a6200;
+  --ferias:#6b48b3; --ferias-soft:#e7e0f5; --lic:#8a5a2b; --lic-soft:#f1e5d6; --congsoft:#dcefdc;
+  --weekend:#f3f6f8; --shadow:0 1px 2px rgba(20,33,43,.06),0 4px 14px rgba(20,33,43,.06);
+  --f-display:"Archivo","Arial Narrow",Arial,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e161c; --surface:#15212a; --sunk:#1b2a34; --ink:#e3ebef; --muted:#95a7b3; --line:#283945;
+  --accent:#4cb7ad; --accent-ink:#06201e; --accent-soft:#163b38;
+  --m:#d9b25a; --t:#d97e45; --n:#8aa3d6;
+  --falta:#ff7d74; --extra:#7eabff; --cong:#72cf80; --abono:#b7accb; --amam:#f0b54e;
+  --ferias:#b49cf0; --ferias-soft:#2b2344; --lic:#e0ad78; --lic-soft:#3a2b1d; --congsoft:#1c3a22;
+  --weekend:#18252e; --shadow:0 1px 2px rgba(0,0,0,.3); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e161c; --surface:#15212a; --sunk:#1b2a34; --ink:#e3ebef; --muted:#95a7b3; --line:#283945;
+  --accent:#4cb7ad; --accent-ink:#06201e; --accent-soft:#163b38;
+  --m:#d9b25a; --t:#d97e45; --n:#8aa3d6;
+  --falta:#ff7d74; --extra:#7eabff; --cong:#72cf80; --abono:#b7accb; --amam:#f0b54e;
+  --ferias:#b49cf0; --ferias-soft:#2b2344; --lic:#e0ad78; --lic-soft:#3a2b1d; --congsoft:#1c3a22;
+  --weekend:#18252e; --shadow:0 1px 2px rgba(0,0,0,.3); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:14px/1.45 var(--f-body)}
+#app{max-width:1240px;margin:0 auto;padding-inline:16px;padding-block:20px 96px}
+button,select,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+
+.mast{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;padding-bottom:14px;border-bottom:2px solid var(--ink)}
+.eyebrow{font:600 11px/1.2 var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+h1{font:800 clamp(30px,6vw,52px)/.92 var(--f-display);font-stretch:68%;letter-spacing:-.01em;margin:6px 0 0;text-transform:uppercase;text-wrap:balance}
+h1 span{color:var(--accent)}
+.monthnav{display:flex;align-items:center;gap:6px}
+.monthnav .mlabel{font:700 22px/1 var(--f-display);font-stretch:80%;min-width:9ch;text-align:center;text-transform:capitalize}
+.iconbtn{border:1px solid var(--line);background:var(--surface);border-radius:8px;width:34px;height:34px;cursor:pointer;display:grid;place-items:center}
+.iconbtn:disabled{opacity:.35;cursor:default}
+.upd{font-size:12px;color:var(--muted);text-align:right;margin-top:6px}
+
+.toolbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;padding-block:12px;border-bottom:1px solid var(--line)}
+.field{display:flex;flex-direction:column;gap:3px}
+.field>label,.flabel{font:600 10.5px/1 var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+select,input[type=text],input[type=date],textarea{background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:7px 9px;min-width:0}
+select{padding-right:26px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 11px;cursor:pointer;font-weight:500;font-size:13px;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.chk{display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;padding-top:14px}
+.spacer{flex:1}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 13px;cursor:pointer;font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:7px;text-decoration:none;color:var(--ink)}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.wa{background:#1f8a4c;border-color:#1f8a4c;color:#fff}
+.btn.danger{color:var(--falta)}
+.btn svg{width:15px;height:15px}
+.btn.small{padding:5px 9px;font-size:12px}
+
+/* resumo */
+.summary{margin-top:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:0}
+.stat .k{font:600 10.5px/1.2 var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.stat .v{font:700 26px/1.1 var(--f-display);font-stretch:80%;margin-top:6px}
+.stat .v small{font:500 13px var(--f-body);color:var(--muted);margin-left:3px}
+.stat .d{font-size:12.5px;color:var(--muted);margin-top:4px}
+.stat.hero{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);grid-column:span 2}
+.stat.hero .k,.stat.hero .d{color:inherit;opacity:.85}
+@media (max-width:560px){.stat.hero{grid-column:auto}}
+.bars{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;grid-column:1/-1}
+.bars h3{margin:0 0 8px;font:600 10.5px/1.2 var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.barrow{display:grid;grid-template-columns:86px 1fr 92px;gap:10px;align-items:center;padding:3px 4px;border-radius:6px;cursor:pointer;border:0;background:none;width:100%;text-align:left}
+.barrow:hover{background:var(--sunk)}
+.barrow .track{height:12px;background:var(--sunk);border-radius:3px;overflow:hidden;display:flex}
+.barrow .fill{background:var(--accent)}
+.barrow .fill.x{background:var(--extra)}
+.barrow .val{font-size:12px;color:var(--muted);text-align:right}
+.barrow .nm{font-weight:600}
+
+.tabs{display:flex;gap:2px;margin-top:22px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs button{border:0;background:none;padding:10px 14px;cursor:pointer;font:600 14px var(--f-body);color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap}
+.tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--accent)}
+.view{margin-top:14px}
+
+/* calendário */
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.wdh{font:600 11px/1 var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:4px 6px}
+.day{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:7px 7px 6px;min-width:0;display:flex;flex-direction:column;gap:4px;min-height:132px}
+.day.blank{background:none;border:1px dashed var(--line);opacity:.5}
+.day.we{background:var(--weekend)}
+.day.today{box-shadow:0 0 0 2px var(--accent) inset}
+.day.outside{opacity:.7}
+.day.dim{opacity:.45}
+.day.mine{border-color:var(--accent)}
+.dh{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.dh b{font:700 19px/1 var(--f-display);font-stretch:75%}
+.dh .wd{display:none;font-weight:600;font-size:12px;color:var(--muted)}
+.tag{font:500 10.5px/1 var(--f-mono);border:1px solid var(--line);border-radius:4px;padding:2px 4px;color:var(--muted)}
+.hol{font-size:10.5px;font-weight:600;color:var(--falta)}
+.sh{display:grid;grid-template-columns:22px 1fr;gap:5px;align-items:start;border-radius:5px;padding:2px 3px}
+.sh .st{font:500 10px/1.6 var(--f-mono);color:var(--muted);border-left:3px solid var(--m);padding-left:3px}
+.sh-T .st{border-color:var(--t)} .sh-N .st{border-color:var(--n)}
+.sh.mine{background:var(--accent-soft)}
+.sh .nm{display:flex;flex-wrap:wrap;gap:1px 6px;min-width:0;font-size:12.5px;line-height:1.5}
+.c{white-space:nowrap}
+.c.dim{opacity:.32}
+.c.me{font-weight:700}
+.c.s-falta{color:var(--falta);text-decoration:line-through;text-decoration-thickness:1.5px}
+.c.s-extra{color:var(--extra)}
+.c.s-extra::before{content:"+";font-weight:700;margin-right:1px}
+.c.s-cong{color:var(--cong);text-decoration:line-through}
+.c.s-cong::after{content:" cong.";font-size:10px;text-decoration:none;display:inline-block}
+.c.s-abono{color:var(--abono);font-style:italic}
+.c.s-amam{color:var(--amam)}
+.c.s-amam::after{content:"**"}
+.c .mk{font:500 10px var(--f-mono);color:var(--muted);margin-left:1px}
+.abs{display:flex;flex-wrap:wrap;gap:3px;margin-top:auto;padding-top:3px}
+.ab{font-size:10.5px;font-weight:600;border-radius:4px;padding:1px 5px;background:var(--ferias-soft);color:var(--ferias)}
+.ab.licenca{background:var(--lic-soft);color:var(--lic)}
+.ab.congresso{background:var(--congsoft);color:var(--cong)}
+@media (max-width:860px){
+  .cal{grid-template-columns:minmax(0,1fr)}
+  .wdh,.day.blank{display:none}
+  .day{min-height:0}
+  .dh .wd{display:inline}
+  .sh{grid-template-columns:44px 1fr}
+  .sh .st::after{content:attr(data-full)}
+  .sh .st{font-size:0}
+  .sh .st::after{font-size:11px}
+}
+
+/* tabelas */
+.tw{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{font:600 10.5px/1.2 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);background:var(--sunk);white-space:nowrap}
+td{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+tr.we td{background:var(--weekend)}
+td.mono,.mono{font-family:var(--f-mono);font-size:12px}
+.pill{display:inline-block;font-size:11.5px;font-weight:600;border-radius:999px;padding:1px 8px;background:var(--sunk)}
+.pill.ok,.pill.amam{background:var(--accent-soft);color:var(--accent)}
+.pill.falta{background:transparent;color:var(--falta);border:1px solid var(--falta)}
+.pill.extra{background:transparent;color:var(--extra);border:1px solid var(--extra)}
+.pill.cong{background:var(--congsoft);color:var(--cong)}
+.pill.abono{color:var(--abono)}
+.empty{padding:28px;text-align:center;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:10px}
+
+/* gantt férias */
+.gantt{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;overflow-x:auto}
+.grow{display:grid;grid-template-columns:96px minmax(560px,1fr);align-items:center;min-height:30px}
+.grow.dim{opacity:.35}
+.grow .gn{font-weight:600;font-size:13px}
+.gtrack{position:relative;height:30px;border-left:1px solid var(--line)}
+.gmonths{display:grid;grid-template-columns:repeat(12,1fr);height:100%}
+.gmonths div{border-right:1px solid var(--line)}
+.gmonths div.cur{background:var(--accent-soft)}
+.ghead .gmonths div{font:600 10.5px/30px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:center;border-right:0}
+.gbar{position:absolute;top:6px;height:18px;border-radius:4px;background:var(--ferias);min-width:4px}
+.gbar.licenca{background:var(--lic)} .gbar.congresso{background:var(--cong)}
+.gbar.open{background:repeating-linear-gradient(135deg,var(--lic) 0 6px,transparent 6px 10px)}
+.gtoday{position:absolute;top:0;bottom:0;width:2px;background:var(--falta)}
+.glegend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:8px 2px 0}
+.sw{display:inline-block;width:12px;height:10px;border-radius:2px;vertical-align:-1px;margin-right:5px;background:var(--ferias)}
+.sw.licenca{background:var(--lic)} .sw.congresso{background:var(--cong)}
+.two{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;margin-top:14px}
+h2{font:700 20px/1.1 var(--f-display);font-stretch:80%;margin:22px 0 10px;text-transform:uppercase;letter-spacing:.01em}
+
+.legend{margin-top:26px;display:flex;flex-wrap:wrap;gap:6px 18px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+.legend .c{font-size:12.5px}
+
+.absum{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:12px}
+.absum .flabel{margin-right:4px}
+.pp{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;align-items:start}
+.pp details{background:var(--surface);border:1px solid var(--line);border-radius:10px;min-width:0}
+.pp details[open]{border-color:var(--accent)}
+.pp summary{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;list-style:none}
+.pp summary::-webkit-details-marker{display:none}
+.pp summary::after{content:"+";font:600 18px/1 var(--f-body);color:var(--muted)}
+.pp details[open] summary::after{content:"–"}
+.ppn{font:700 17px/1 var(--f-display);font-stretch:80%;text-transform:uppercase;letter-spacing:.02em}
+.ppm{margin-left:auto;font-size:12.5px;color:var(--muted)}
+.pp ul{list-style:none;margin:0;padding:0 14px 10px;display:flex;flex-direction:column}
+.pp li{display:grid;grid-template-columns:92px 1fr;gap:8px;padding:6px 0;border-top:1px solid var(--line);font-size:13.5px}
+.pp li.we b{color:var(--accent)}
+.pp li.off span{color:var(--cong)}
+.pp li.abl b{color:var(--ferias)}
+.pp li.abl.licenca b{color:var(--lic)}
+.pp li.abl.congresso b{color:var(--cong)}
+/* edição */
+.editbox{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:12px}
+.help{font-size:12.5px;color:var(--muted);line-height:1.6}
+.help code{font-family:var(--f-mono);font-size:12px;background:var(--sunk);border-radius:4px;padding:1px 5px;color:var(--ink)}
+.eg input[type=text]{width:100%;font-family:var(--f-mono);font-size:12.5px;padding:5px 7px}
+.eg input.warn{border-color:var(--falta);background:color-mix(in srgb,var(--falta) 8%,var(--surface))}
+.eg td{padding:4px 6px}
+.eg .tagin{width:64px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+textarea{width:100%;min-height:120px;font-family:var(--f-mono);font-size:12px}
+
+.pubbar{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--ink);color:var(--bg);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap}
+.pubbar .btn{border-color:transparent}
+.modal{position:fixed;inset:0;z-index:50;background:rgba(10,18,24,.55);display:grid;place-items:center;padding:16px}
+.sheet{background:var(--surface);color:var(--ink);border-radius:12px;max-width:560px;width:100%;padding:18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px;max-height:90vh;overflow:auto}
+.sheet h3{margin:0;font:700 20px/1.1 var(--f-display);font-stretch:80%;text-transform:uppercase}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:84px;z-index:60;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-weight:500;max-width:calc(100vw - 32px)}
+@media (prefers-reduced-motion:no-preference){.day,.sh{transition:opacity .15s,background .15s}}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head><body>
+<script type="application/json" id="escala-data">{"unit":"UTI Adulto","hospital":"Hospital Regional de Taguatinga","shifts":[{"id":"M","label":"Manhã","start":"07:00","end":"13:00","h":6},{"id":"T","label":"Tarde","start":"13:00","end":"19:00","h":6},{"id":"N","label":"Noite","start":"19:00","end":"07:00","h":12}],"holidays":[{"d":"2026-10-12","name":"N. Sra. Aparecida"}],"people":[{"key":"ANDREA","short":"Andrea","name":"Andrea Simone Rodrigues Dias","mat":"146.053-6","aniv":"11/03"},{"key":"FABRICIO","short":"Fabrício","name":"Fabricio Duarte Caires","mat":"166.610-X","aniv":"29/05"},{"key":"LIANE","short":"Liane","name":"Liane Rodrigues da Cunha","mat":"171.083-4","aniv":"30/09"},{"key":"STANLEY","short":"Stanley","name":"Stanley Silvano Souza","mat":"192.865-1","aniv":"18/11"},{"key":"RODRIGO","short":"Rodrigo","name":"Rodrigo Vieira Guimarães","mat":"1.443.904-2","aniv":"05/01"},{"key":"NAIRA","short":"Naira","name":"Naira Oliveira Ferreira","mat":"1.685.953-2","aniv":"15/11"},{"key":"MAIRA","short":"Maíra","name":"Maira de Freitas Vilela","mat":"1.685.970-7","aniv":"01/04"},{"key":"THALES","short":"Thales","name":"Thales Lino Fernandes Alcântara","mat":"1.686.029-2","aniv":"27/05"},{"key":"SAMUEL","short":"Samuel","name":"Samuel de Souza Ferreira","mat":"1.712.158-2","aniv":"29/01"},{"key":"GABRIEL","short":"Gabriel","name":"Gabriel de Oliveira Araújo","mat":"1.714.314-4","aniv":"31/03"},{"key":"JONATHAN","short":"Jonathan","name":"Jonathan Mateus","mat":"1.697.557-X","aniv":"21/08"}],"months":{"2026-10":{"days":[{"d":"2026-10-01","tag":"","M":[{"p":"MAIRA","s":"ok"}],"T":[{"p":"THALES","s":"ok"},{"p":"GABRIEL","s":"falta"}],"N":[{"p":"FABRICIO","s":"extra","m":"°"},{"p":"LIANE","s":"abono"}]},{"d":"2026-10-02","tag":"","M":[{"p":"GABRIEL","s":"ok"}],"T":[{"p":"SAMUEL","s":"ok"}],"N":[{"p":"STANLEY","s":"ok"}]},{"d":"2026-10-03","tag":"","M":[{"p":"STANLEY","s":"extra"}],"T":[{"p":"STANLEY","s":"ok"}],"N":[{"p":"STANLEY","s":"ok"}]},{"d":"2026-10-04","tag":"","M":[{"p":"GABRIEL","s":"ok"}],"T":[{"p":"GABRIEL","s":"ok"}],"N":[{"p":"STANLEY","s":"ok"}]},{"d":"2026-10-05","tag":"","M":[{"p":"STANLEY","s":"ok"},{"p":"MAIRA","s":"cong"}],"T":[{"p":"STANLEY","s":"extra"},{"p":"MAIRA","s":"cong"}],"N":[{"p":"STANLEY","s":"ok"}]},{"d":"2026-10-06","tag":"Pr","M":[{"p":"GABRIEL","s":"ok"}],"T":[{"p":"LIANE","s":"ok"}],"N":[{"p":"LIANE","s":"ok"}]},{"d":"2026-10-07","tag":"T","M":[{"p":"SAMUEL","s":"ok"},{"p":"MAIRA","s":"cong"}],"T":[{"p":"FABRICIO","s":"ok"},{"p":"NAIRA","s":"amam"}],"N":[{"p":"THALES","s":"ok"}]},{"d":"2026-10-08","tag":"MT","M":[{"p":"FABRICIO","s":"falta","m":"+"}],"T":[{"p":"THALES","s":"extra"},{"p":"NAIRA","s":"amam"}],"N":[{"p":"LIANE","s":"ok"}]},{"d":"2026-10-09","tag":"","M":[{"p":"SAMUEL","s":"ok"}],"T":[{"p":"SAMUEL","s":"ok"},{"p":"STANLEY","s":"falta"}],"N":[{"p":"FABRICIO","s":"falta"},{"p":"SAMUEL","s":"extra"}]},{"d":"2026-10-10","tag":"","M":[{"p":"LIANE","s":"ok"}],"T":[{"p":"LIANE","s":"ok"}],"N":[{"p":"THALES","s":"ok"}]},{"d":"2026-10-11","tag":"","M":[{"p":"MAIRA","s":"ok"}],"T":[{"p":"MAIRA","s":"ok"}],"N":[{"p":"STANLEY","s":"falta"},{"p":"SAMUEL","s":"extra"}]},{"d":"2026-10-12","tag":"","M":[{"p":"MAIRA","s":"ok"}],"T":[{"p":"MAIRA","s":"ok"}],"N":[{"p":"THALES","s":"extra"}]},{"d":"2026-10-13","tag":"Pr","M":[{"p":"GABRIEL","s":"ok"}],"T":[{"p":"LIANE","s":"ok"},{"p":"NAIRA","s":"amam"}],"N":[{"p":"LIANE","s":"ok"}]},{"d":"2026-10-14","tag":"TN","M":[{"p":"GABRIEL","s":"ok"}],"T":[{"p":"FABRICIO","s":"ok"},{"p":"NAIRA","s":"amam"}],"N":[{"p":"THALES","s":"ok"}]},{"d":"2026-10-15","tag":"","M":[{"p":"SAMUEL","s":"extra"},{"p":"THALES","s":"falta"}],"T":[{"p":"LIANE","s":"ok"}],"N":[{"p":"LIANE","s":"ok"}]},{"d":"2026-10-16","tag":"","M":[{"p":"SAMUEL","s":"ok"}],"T":[{"p":"SAMUEL","s":"ok"}],"N":[{"p":"STANLEY","s":"ok"}]},{"d":"2026-10-17","tag":"","M":[{"p":"SAMUEL","s":"extra"},{"p":"NAIRA","s":"amam"}],"T":[{"p":"SAMUEL","s":"ok"}],"N":[{"p":"STANLEY","s":"ok"}]},{"d":"2026-10-18","tag":"N","M":[{"p":"GABRIEL","s":"ok"}],"T":[{"p":"GABRIEL","s":"ok"}],"N":[{"p":"STANLEY","s":"ok"}]},{"d":"2026-10-19","tag":"","M":[{"p":"MAIRA","s":"ok"},{"p":"LIANE","s":"falta"}],"T":[{"p":"MAIRA","s":"ok"}],"N":[{"p":"STANLEY","s":"ok"}]},{"d":"2026-10-20","tag":"Pr","M":[{"p":"GABRIEL","s":"ok"}],"T":[{"p":"LIANE","s":"ok"},{"p":"NAIRA","s":"amam"}],"N":[{"p":"LIANE","s":"ok"}]},{"d":"2026-10-21","tag":"","M":[{"p":"GABRIEL","s":"extra"},{"p":"STANLEY","s":"falta"}],"T":[{"p":"FABRICIO","s":"ok"}],"N":[{"p":"THALES","s":"ok"}]},{"d":"2026-10-22","tag":"","M":[{"p":"SAMUEL","s":"extra"},{"p":"THALES","s":"falta"}],"T":[{"p":"LIANE","s":"ok"},{"p":"SAMUEL","s":"falta"}],"N":[{"p":"LIANE","s":"ok"}]},{"d":"2026-10-23","tag":"","M":[{"p":"SAMUEL","s":"ok"}],"T":[{"p":"NAIRA","s":"amam"}],"N":[{"p":"SAMUEL","s":"falta"},{"p":"FABRICIO","s":"extra"}]},{"d":"2026-10-24","tag":"","M":[{"p":"MAIRA","s":"extra"},{"p":"NAIRA","s":"amam"}],"T":[{"p":"MAIRA","s":"ok"}],"N":[{"p":"STANLEY","s":"ok"}]},{"d":"2026-10-25","tag":"","M":[{"p":"STANLEY","s":"extra"},{"p":"NAIRA","s":"amam"}],"T":[{"p":"STANLEY","s":"ok"}],"N":[{"p":"THALES","s":"ok"}]},{"d":"2026-10-26","tag":"","M":[{"p":"MAIRA","s":"ok"}],"T":[{"p":"MAIRA","s":"ok"}],"N":[{"p":"STANLEY","s":"ok"}]},{"d":"2026-10-27","tag":"Pr","M":[{"p":"GABRIEL","s":"ok"}],"T":[{"p":"LIANE","s":"ok"},{"p":"NAIRA","s":"amam"}],"N":[{"p":"LIANE","s":"ok"}]},{"d":"2026-10-28","tag":"TN","M":[{"p":"GABRIEL","s":"ok"}],"T":[{"p":"FABRICIO","s":"ok"}],"N":[{"p":"THALES","s":"ok"}]},{"d":"2026-10-29","tag":"","M":[{"p":"FABRICIO","s":"falta"},{"p":"SAMUEL","s":"extra"}],"T":[{"p":"SAMUEL","s":"falta"},{"p":"LIANE","s":"extra"}],"N":[{"p":"LIANE","s":"ok"}]},{"d":"2026-10-30","tag":"","M":[{"p":"GABRIEL","s":"ok"}],"T":[{"p":"NAIRA","s":"amam"},{"p":"STANLEY","s":"falta"}],"N":[{"p":"STANLEY","s":"ok"}]},{"d":"2026-10-31","tag":"","M":[{"p":"LIANE","s":"ok"},{"p":"NAIRA","s":"amam"}],"T":[{"p":"LIANE","s":"ok"}],"N":[{"p":"STANLEY","s":"extra"},{"p":"SAMUEL","s":"falta"}]},{"d":"2026-11-01","tag":"","M":[{"p":"FABRICIO","s":"ok"}],"T":[{"p":"STANLEY","s":"ok"}],"N":[{"p":"STANLEY","s":"ok"}]}],"updated":"2026-10-01"}},"absences":[{"p":"ANDREA","t":"ferias","to":"2026-07-11","note":"","from":"2026-06-22"},{"p":"ANDREA","t":"ferias","to":"2027-01-09","note":"","from":"2026-12-21"},{"p":"FABRICIO","t":"ferias","to":"2026-07-18","note":"","from":"2026-06-29"},{"p":"FABRICIO","t":"ferias","to":"2027-01-16","note":"","from":"2026-12-28"},{"p":"LIANE","t":"ferias","to":"2026-06-13","note":"","from":"2026-05-25"},{"p":"LIANE","t":"ferias","to":"2026-11-30","note":"","from":"2026-11-11"},{"p":"STANLEY","t":"ferias","to":"2026-02-28","note":"","from":"2026-02-09"},{"p":"STANLEY","t":"ferias","to":"2026-12-31","note":"","from":"2026-12-13"},{"p":"RODRIGO","t":"ferias","to":"2026-07-16","note":"","from":"2026-06-27"},{"p":"RODRIGO","t":"ferias","to":"2026-12-24","note":"","from":"2026-12-05"},{"p":"RODRIGO","t":"licenca","to":"2026-10-31","note":"Licença-prêmio (LP na tabela de horas)","from":"2026-09-27"},{"p":"THALES","t":"ferias","to":"2026-01-28","note":"","from":"2026-01-09"},{"p":"THALES","t":"ferias","to":"2026-08-01","note":"","from":"2026-07-13"},{"p":"JONATHAN","t":"ferias","to":"2026-10-30","note":"","from":"2026-10-01"},{"p":"JONATHAN","t":"licenca","to":"","note":"Licença (Serv.) desde 19/09, sem término informado","from":"2026-09-19"},{"p":"SAMUEL","t":"ferias","to":"2026-05-30","note":"","from":"2026-05-11"},{"p":"SAMUEL","t":"ferias","to":"2026-08-29","note":"","from":"2026-08-10"},{"p":"GABRIEL","t":"ferias","to":"2026-04-18","note":"","from":"2026-03-30"},{"p":"GABRIEL","t":"ferias","to":"2026-12-26","note":"","from":"2026-12-07"},{"p":"NAIRA","t":"licenca","to":"2026-10-03","note":"LP na tabela de horas","from":"2026-09-27"},{"p":"MAIRA","t":"ferias","to":"2026-04-04","note":"","from":"2026-03-16"},{"p":"MAIRA","t":"ferias","to":"2026-11-17","note":"","from":"2026-10-28"},{"p":"MAIRA","t":"congresso","to":"2026-10-10","note":"Congresso (semana marcada como Cong na tabela de horas)","from":"2026-10-04"}],"abonos":{"LIANE":["26/06","23/08","27/09","01/10"],"STANLEY":["03/01","05/01","16/04","19/06","10/07"],"THALES":["26/04","24/06","29/08"],"RODRIGO":["31/05","01/06","30/08"],"GABRIEL":["20/06","25/06","11/08","16/08"],"SAMUEL":["13/02","15/02","11/09","18/09","25/09"],"BRENA":["04/04","11/04","25/04","03/06"],"MAIRA":["17/01","07/05","09/07","27/08"],"FABRICIO":["02/01","06/08","27/08"],"JONATHAN":["03/02","24/02","16/06","23/06"]}}</script>
+<script>window.ESCALA_STATIC=true</script>
+<div id="app">
+  <header class="mast">
+    <div><div class="eyebrow">Hospital Regional de Taguatinga</div><h1>Escala <span>UTI Adulto</span></h1></div>
+    <div><div class="monthnav"><div class="mlabel">outubro 2026</div></div>
+      <div class="upd">Atualizada em 01/10/2026</div></div>
+  </header>
+  <p class="help" style="margin:12px 0">Toque no seu nome para ver seus plantões. Para usar os filtros, abra a escala pelo link no navegador.</p>
+  <div class="absum"><span class="flabel">Afastamentos no mês</span><span class="ab licenca" title="Licença (Serv.) desde 19/09, sem término informado">Licença Jonathan · 19/09–…</span><span class="ab licenca" title="Licença-prêmio (LP na tabela de horas)">Licença Rodrigo · 27/09–31/10</span><span class="ab licenca" title="LP na tabela de horas">Licença Naira · 27/09–03/10</span><span class="ab ferias" title="">Férias Jonathan · 01/10–30/10</span><span class="ab congresso" title="Congresso (semana marcada como Cong na tabela de horas)">Congresso Maíra · 04/10–10/10</span><span class="ab ferias" title="">Férias Maíra · 28/10–17/11</span></div>
+  <h2>Plantões por pessoa</h2><div class="pp"><details id="p-fabricio"><summary><span class="ppn">Fabrício</span><span class="ppm num">48 h · 6 turnos</span></summary>
+      <ul><li class=""><b class="num">Qui 01/10</b><span>19h–07h (cobertura)</span></li><li class=""><b class="num">Qua 07/10</b><span>13h–19h</span></li><li class=" off"><b class="num">Qui 08/10</b><span>manhã: escalado, mas não vem</span></li><li class=" off"><b class="num">Sex 09/10</b><span>noite: escalado, mas não vem</span></li><li class=""><b class="num">Qua 14/10</b><span>13h–19h</span></li><li class=""><b class="num">Qua 21/10</b><span>13h–19h</span></li><li class=""><b class="num">Sex 23/10</b><span>19h–07h (cobertura)</span></li><li class=""><b class="num">Qua 28/10</b><span>13h–19h</span></li><li class=" off"><b class="num">Qui 29/10</b><span>manhã: escalado, mas não vem</span></li>
+      </ul></details><details id="p-gabriel"><summary><span class="ppn">Gabriel</span><span class="ppm num">78 h · 13 turnos</span></summary>
+      <ul><li class=" off"><b class="num">Qui 01/10</b><span>tarde: escalado, mas não vem</span></li><li class=""><b class="num">Sex 02/10</b><span>07h–13h</span></li><li class="we"><b class="num">Dom 04/10</b><span>07h–19h</span></li><li class=""><b class="num">Ter 06/10</b><span>07h–13h</span></li><li class=""><b class="num">Ter 13/10</b><span>07h–13h</span></li><li class=""><b class="num">Qua 14/10</b><span>07h–13h</span></li><li class="we"><b class="num">Dom 18/10</b><span>07h–19h</span></li><li class=""><b class="num">Ter 20/10</b><span>07h–13h</span></li><li class=""><b class="num">Qua 21/10</b><span>07h–13h (cobertura)</span></li><li class=""><b class="num">Ter 27/10</b><span>07h–13h</span></li><li class=""><b class="num">Qua 28/10</b><span>07h–13h</span></li><li class=""><b class="num">Sex 30/10</b><span>07h–13h</span></li>
+      </ul></details><details id="p-jonathan"><summary><span class="ppn">Jonathan</span><span class="ppm num">0 h · 0 turnos</span></summary>
+      <ul>
+      <li class="abl licenca"><b>Licença</b><span>19/09 a sem término</span></li><li class="abl ferias"><b>Férias</b><span>01/10 a 30/10</span></li></ul></details><details id="p-liane"><summary><span class="ppn">Liane</span><span class="ppm num">162 h · 19 turnos</span></summary>
+      <ul><li class=" off"><b class="num">Qui 01/10</b><span>noite: abono</span></li><li class=""><b class="num">Ter 06/10</b><span>13h–07h</span></li><li class=""><b class="num">Qui 08/10</b><span>19h–07h</span></li><li class="we"><b class="num">Sáb 10/10</b><span>07h–19h</span></li><li class=""><b class="num">Ter 13/10</b><span>13h–07h</span></li><li class=""><b class="num">Qui 15/10</b><span>13h–07h</span></li><li class=" off"><b class="num">Seg 19/10</b><span>manhã: escalado, mas não vem</span></li><li class=""><b class="num">Ter 20/10</b><span>13h–07h</span></li><li class=""><b class="num">Qui 22/10</b><span>13h–07h</span></li><li class=""><b class="num">Ter 27/10</b><span>13h–07h</span></li><li class=""><b class="num">Qui 29/10</b><span>13h–07h (cobertura)</span></li><li class="we"><b class="num">Sáb 31/10</b><span>07h–19h</span></li>
+      </ul></details><details id="p-maira"><summary><span class="ppn">Maíra</span><span class="ppm num">66 h · 11 turnos</span></summary>
+      <ul><li class=""><b class="num">Qui 01/10</b><span>07h–13h</span></li><li class=" off"><b class="num">Seg 05/10</b><span>manhã: congresso · tarde: congresso</span></li><li class=" off"><b class="num">Qua 07/10</b><span>manhã: congresso</span></li><li class="we"><b class="num">Dom 11/10</b><span>07h–19h</span></li><li class="we"><b class="num">Seg 12/10</b><span>07h–19h</span></li><li class=""><b class="num">Seg 19/10</b><span>07h–19h</span></li><li class="we"><b class="num">Sáb 24/10</b><span>07h–19h (cobertura)</span></li><li class=""><b class="num">Seg 26/10</b><span>07h–19h</span></li>
+      <li class="abl congresso"><b>Congresso</b><span>04/10 a 10/10</span></li><li class="abl ferias"><b>Férias</b><span>28/10 a 17/11</span></li></ul></details><details id="p-naira"><summary><span class="ppn">Naira</span><span class="ppm num">72 h · 12 turnos</span></summary>
+      <ul><li class=""><b class="num">Qua 07/10</b><span>13h–19h</span></li><li class=""><b class="num">Qui 08/10</b><span>13h–19h</span></li><li class=""><b class="num">Ter 13/10</b><span>13h–19h</span></li><li class=""><b class="num">Qua 14/10</b><span>13h–19h</span></li><li class="we"><b class="num">Sáb 17/10</b><span>07h–13h</span></li><li class=""><b class="num">Ter 20/10</b><span>13h–19h</span></li><li class=""><b class="num">Sex 23/10</b><span>13h–19h</span></li><li class="we"><b class="num">Sáb 24/10</b><span>07h–13h</span></li><li class="we"><b class="num">Dom 25/10</b><span>07h–13h</span></li><li class=""><b class="num">Ter 27/10</b><span>13h–19h</span></li><li class=""><b class="num">Sex 30/10</b><span>13h–19h</span></li><li class="we"><b class="num">Sáb 31/10</b><span>07h–13h</span></li>
+      <li class="abl licenca"><b>Licença</b><span>27/09 a 03/10</span></li></ul></details><details id="p-rodrigo"><summary><span class="ppn">Rodrigo</span><span class="ppm num">0 h · 0 turnos</span></summary>
+      <ul>
+      <li class="abl licenca"><b>Licença</b><span>27/09 a 31/10</span></li></ul></details><details id="p-samuel"><summary><span class="ppn">Samuel</span><span class="ppm num">96 h · 14 turnos</span></summary>
+      <ul><li class=""><b class="num">Sex 02/10</b><span>13h–19h</span></li><li class=""><b class="num">Qua 07/10</b><span>07h–13h</span></li><li class=""><b class="num">Sex 09/10</b><span>07h–07h (cobertura)</span></li><li class="we"><b class="num">Dom 11/10</b><span>19h–07h (cobertura)</span></li><li class=""><b class="num">Qui 15/10</b><span>07h–13h (cobertura)</span></li><li class=""><b class="num">Sex 16/10</b><span>07h–19h</span></li><li class="we"><b class="num">Sáb 17/10</b><span>07h–19h (cobertura)</span></li><li class=""><b class="num">Qui 22/10</b><span>07h–13h (cobertura) · tarde: escalado, mas não vem</span></li><li class=""><b class="num">Sex 23/10</b><span>07h–13h · noite: escalado, mas não vem</span></li><li class=""><b class="num">Qui 29/10</b><span>07h–13h (cobertura) · tarde: escalado, mas não vem</span></li><li class="we off"><b class="num">Sáb 31/10</b><span>noite: escalado, mas não vem</span></li>
+      </ul></details><details id="p-stanley"><summary><span class="ppn">Stanley</span><span class="ppm num">180 h · 18 turnos</span></summary>
+      <ul><li class=""><b class="num">Sex 02/10</b><span>19h–07h</span></li><li class="we"><b class="num">Sáb 03/10</b><span>07h–07h (cobertura)</span></li><li class="we"><b class="num">Dom 04/10</b><span>19h–07h</span></li><li class=""><b class="num">Seg 05/10</b><span>07h–07h (cobertura)</span></li><li class=" off"><b class="num">Sex 09/10</b><span>tarde: escalado, mas não vem</span></li><li class="we off"><b class="num">Dom 11/10</b><span>noite: escalado, mas não vem</span></li><li class=""><b class="num">Sex 16/10</b><span>19h–07h</span></li><li class="we"><b class="num">Sáb 17/10</b><span>19h–07h</span></li><li class="we"><b class="num">Dom 18/10</b><span>19h–07h</span></li><li class=""><b class="num">Seg 19/10</b><span>19h–07h</span></li><li class=" off"><b class="num">Qua 21/10</b><span>manhã: escalado, mas não vem</span></li><li class="we"><b class="num">Sáb 24/10</b><span>19h–07h</span></li><li class="we"><b class="num">Dom 25/10</b><span>07h–19h (cobertura)</span></li><li class=""><b class="num">Seg 26/10</b><span>19h–07h</span></li><li class=""><b class="num">Sex 30/10</b><span>19h–07h · tarde: escalado, mas não vem</span></li><li class="we"><b class="num">Sáb 31/10</b><span>19h–07h (cobertura)</span></li>
+      </ul></details><details id="p-thales"><summary><span class="ppn">Thales</span><span class="ppm num">96 h · 9 turnos</span></summary>
+      <ul><li class=""><b class="num">Qui 01/10</b><span>13h–19h</span></li><li class=""><b class="num">Qua 07/10</b><span>19h–07h</span></li><li class=""><b class="num">Qui 08/10</b><span>13h–19h (cobertura)</span></li><li class="we"><b class="num">Sáb 10/10</b><span>19h–07h</span></li><li class="we"><b class="num">Seg 12/10</b><span>19h–07h (cobertura)</span></li><li class=""><b class="num">Qua 14/10</b><span>19h–07h</span></li><li class=" off"><b class="num">Qui 15/10</b><span>manhã: escalado, mas não vem</span></li><li class=""><b class="num">Qua 21/10</b><span>19h–07h</span></li><li class=" off"><b class="num">Qui 22/10</b><span>manhã: escalado, mas não vem</span></li><li class="we"><b class="num">Dom 25/10</b><span>19h–07h</span></li><li class=""><b class="num">Qua 28/10</b><span>19h–07h</span></li>
+      </ul></details></div>
+  <h2>Calendário do mês</h2>
+  <section class="view"><div class="cal"><div class="wdh">Dom</div><div class="wdh">Seg</div><div class="wdh">Ter</div><div class="wdh">Qua</div><div class="wdh">Qui</div><div class="wdh">Sex</div><div class="wdh">Sáb</div><div class="day blank" aria-hidden="true"></div><div class="day blank" aria-hidden="true"></div><div class="day blank" aria-hidden="true"></div><div class="day blank" aria-hidden="true"></div><div class="day  today   ">
+      <div class="dh"><b class="num">01</b><span class="wd">Qui</span>
+        </div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-ok" title="Maíra · Escalado">Maíra</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-ok" title="Thales · Escalado">Thales</span><span class="c s-falta" title="Gabriel · Escalado, mas não vem">Gabriel</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-extra" title="Fabrício · Cobertura (não escalado, vem) · marca °">Fabrício<span class="mk">°</span></span><span class="c s-abono" title="Liane · Abono">(Liane)</span></span></div>
+      
+    </div><div class="day     ">
+      <div class="dh"><b class="num">02</b><span class="wd">Sex</span>
+        </div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-ok" title="Gabriel · Escalado">Gabriel</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-ok" title="Samuel · Escalado">Samuel</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-ok" title="Stanley · Escalado">Stanley</span></span></div>
+      
+    </div><div class="day we    ">
+      <div class="dh"><b class="num">03</b><span class="wd">Sáb</span>
+        </div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-extra" title="Stanley · Cobertura (não escalado, vem)">Stanley</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-ok" title="Stanley · Escalado">Stanley</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-ok" title="Stanley · Escalado">Stanley</span></span></div>
+      
+    </div><div class="day we    ">
+      <div class="dh"><b class="num">04</b><span class="wd">Dom</span>
+        </div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-ok" title="Gabriel · Escalado">Gabriel</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-ok" title="Gabriel · Escalado">Gabriel</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-ok" title="Stanley · Escalado">Stanley</span></span></div>
+      
+    </div><div class="day     ">
+      <div class="dh"><b class="num">05</b><span class="wd">Seg</span>
+        </div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-ok" title="Stanley · Escalado">Stanley</span><span class="c s-cong" title="Maíra · Congresso">Maíra</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-extra" title="Stanley · Cobertura (não escalado, vem)">Stanley</span><span class="c s-cong" title="Maíra · Congresso">Maíra</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-ok" title="Stanley · Escalado">Stanley</span></span></div>
+      
+    </div><div class="day     ">
+      <div class="dh"><b class="num">06</b><span class="wd">Ter</span>
+        <span class="tag" title="Anotação da escala">Pr</span></div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-ok" title="Gabriel · Escalado">Gabriel</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-ok" title="Liane · Escalado">Liane</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-ok" title="Liane · Escalado">Liane</span></span></div>
+      
+    </div><div class="day     ">
+      <div class="dh"><b class="num">07</b><span class="wd">Qua</span>
+        <span class="tag" title="Anotação da escala">T</span></div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-ok" title="Samuel · Escalado">Samuel</span><span class="c s-cong" title="Maíra · Congresso">Maíra</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-ok" title="Fabrício · Escalado">Fabrício</span><span class="c s-amam" title="Naira · Amamentação (**)">Naira</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-ok" title="Thales · Escalado">Thales</span></span></div>
+      
+    </div><div class="day     ">
+      <div class="dh"><b class="num">08</b><span class="wd">Qui</span>
+        <span class="tag" title="Anotação da escala">MT</span></div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-falta" title="Fabrício · Escalado, mas não vem · marca +">Fabrício<span class="mk">+</span></span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-extra" title="Thales · Cobertura (não escalado, vem)">Thales</span><span class="c s-amam" title="Naira · Amamentação (**)">Naira</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-ok" title="Liane · Escalado">Liane</span></span></div>
+      
+    </div><div class="day     ">
+      <div class="dh"><b class="num">09</b><span class="wd">Sex</span>
+        </div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-ok" title="Samuel · Escalado">Samuel</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-ok" title="Samuel · Escalado">Samuel</span><span class="c s-falta" title="Stanley · Escalado, mas não vem">Stanley</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-falta" title="Fabrício · Escalado, mas não vem">Fabrício</span><span class="c s-extra" title="Samuel · Cobertura (não escalado, vem)">Samuel</span></span></div>
+      
+    </div><div class="day we    ">
+      <div class="dh"><b class="num">10</b><span class="wd">Sáb</span>
+        </div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-ok" title="Liane · Escalado">Liane</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-ok" title="Liane · Escalado">Liane</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-ok" title="Thales · Escalado">Thales</span></span></div>
+      
+    </div><div class="day we    ">
+      <div class="dh"><b class="num">11</b><span class="wd">Dom</span>
+        </div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-ok" title="Maíra · Escalado">Maíra</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-ok" title="Maíra · Escalado">Maíra</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-falta" title="Stanley · Escalado, mas não vem">Stanley</span><span class="c s-extra" title="Samuel · Cobertura (não escalado, vem)">Samuel</span></span></div>
+      
+    </div><div class="day we    ">
+      <div class="dh"><b class="num">12</b><span class="wd">Seg</span>
+        <span class="hol">N. Sra. Aparecida</span></div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-ok" title="Maíra · Escalado">Maíra</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-ok" title="Maíra · Escalado">Maíra</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-extra" title="Thales · Cobertura (não escalado, vem)">Thales</span></span></div>
+      
+    </div><div class="day     ">
+      <div class="dh"><b class="num">13</b><span class="wd">Ter</span>
+        <span class="tag" title="Anotação da escala">Pr</span></div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-ok" title="Gabriel · Escalado">Gabriel</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-ok" title="Liane · Escalado">Liane</span><span class="c s-amam" title="Naira · Amamentação (**)">Naira</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-ok" title="Liane · Escalado">Liane</span></span></div>
+      
+    </div><div class="day     ">
+      <div class="dh"><b class="num">14</b><span class="wd">Qua</span>
+        <span class="tag" title="Anotação da escala">TN</span></div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-ok" title="Gabriel · Escalado">Gabriel</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-ok" title="Fabrício · Escalado">Fabrício</span><span class="c s-amam" title="Naira · Amamentação (**)">Naira</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-ok" title="Thales · Escalado">Thales</span></span></div>
+      
+    </div><div class="day     ">
+      <div class="dh"><b class="num">15</b><span class="wd">Qui</span>
+        </div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-extra" title="Samuel · Cobertura (não escalado, vem)">Samuel</span><span class="c s-falta" title="Thales · Escalado, mas não vem">Thales</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-ok" title="Liane · Escalado">Liane</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-ok" title="Liane · Escalado">Liane</span></span></div>
+      
+    </div><div class="day     ">
+      <div class="dh"><b class="num">16</b><span class="wd">Sex</span>
+        </div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-ok" title="Samuel · Escalado">Samuel</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-ok" title="Samuel · Escalado">Samuel</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-ok" title="Stanley · Escalado">Stanley</span></span></div>
+      
+    </div><div class="day we    ">
+      <div class="dh"><b class="num">17</b><span class="wd">Sáb</span>
+        </div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-extra" title="Samuel · Cobertura (não escalado, vem)">Samuel</span><span class="c s-amam" title="Naira · Amamentação (**)">Naira</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-ok" title="Samuel · Escalado">Samuel</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-ok" title="Stanley · Escalado">Stanley</span></span></div>
+      
+    </div><div class="day we    ">
+      <div class="dh"><b class="num">18</b><span class="wd">Dom</span>
+        <span class="tag" title="Anotação da escala">N</span></div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-ok" title="Gabriel · Escalado">Gabriel</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-ok" title="Gabriel · Escalado">Gabriel</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-ok" title="Stanley · Escalado">Stanley</span></span></div>
+      
+    </div><div class="day     ">
+      <div class="dh"><b class="num">19</b><span class="wd">Seg</span>
+        </div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-ok" title="Maíra · Escalado">Maíra</span><span class="c s-falta" title="Liane · Escalado, mas não vem">Liane</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-ok" title="Maíra · Escalado">Maíra</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-ok" title="Stanley · Escalado">Stanley</span></span></div>
+      
+    </div><div class="day     ">
+      <div class="dh"><b class="num">20</b><span class="wd">Ter</span>
+        <span class="tag" title="Anotação da escala">Pr</span></div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-ok" title="Gabriel · Escalado">Gabriel</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-ok" title="Liane · Escalado">Liane</span><span class="c s-amam" title="Naira · Amamentação (**)">Naira</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-ok" title="Liane · Escalado">Liane</span></span></div>
+      
+    </div><div class="day     ">
+      <div class="dh"><b class="num">21</b><span class="wd">Qua</span>
+        </div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-extra" title="Gabriel · Cobertura (não escalado, vem)">Gabriel</span><span class="c s-falta" title="Stanley · Escalado, mas não vem">Stanley</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-ok" title="Fabrício · Escalado">Fabrício</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-ok" title="Thales · Escalado">Thales</span></span></div>
+      
+    </div><div class="day     ">
+      <div class="dh"><b class="num">22</b><span class="wd">Qui</span>
+        </div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-extra" title="Samuel · Cobertura (não escalado, vem)">Samuel</span><span class="c s-falta" title="Thales · Escalado, mas não vem">Thales</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-ok" title="Liane · Escalado">Liane</span><span class="c s-falta" title="Samuel · Escalado, mas não vem">Samuel</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-ok" title="Liane · Escalado">Liane</span></span></div>
+      
+    </div><div class="day     ">
+      <div class="dh"><b class="num">23</b><span class="wd">Sex</span>
+        </div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-ok" title="Samuel · Escalado">Samuel</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-amam" title="Naira · Amamentação (**)">Naira</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-falta" title="Samuel · Escalado, mas não vem">Samuel</span><span class="c s-extra" title="Fabrício · Cobertura (não escalado, vem)">Fabrício</span></span></div>
+      
+    </div><div class="day we    ">
+      <div class="dh"><b class="num">24</b><span class="wd">Sáb</span>
+        </div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-extra" title="Maíra · Cobertura (não escalado, vem)">Maíra</span><span class="c s-amam" title="Naira · Amamentação (**)">Naira</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-ok" title="Maíra · Escalado">Maíra</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-ok" title="Stanley · Escalado">Stanley</span></span></div>
+      
+    </div><div class="day we    ">
+      <div class="dh"><b class="num">25</b><span class="wd">Dom</span>
+        </div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-extra" title="Stanley · Cobertura (não escalado, vem)">Stanley</span><span class="c s-amam" title="Naira · Amamentação (**)">Naira</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-ok" title="Stanley · Escalado">Stanley</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-ok" title="Thales · Escalado">Thales</span></span></div>
+      
+    </div><div class="day     ">
+      <div class="dh"><b class="num">26</b><span class="wd">Seg</span>
+        </div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-ok" title="Maíra · Escalado">Maíra</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-ok" title="Maíra · Escalado">Maíra</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-ok" title="Stanley · Escalado">Stanley</span></span></div>
+      
+    </div><div class="day     ">
+      <div class="dh"><b class="num">27</b><span class="wd">Ter</span>
+        <span class="tag" title="Anotação da escala">Pr</span></div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-ok" title="Gabriel · Escalado">Gabriel</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-ok" title="Liane · Escalado">Liane</span><span class="c s-amam" title="Naira · Amamentação (**)">Naira</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-ok" title="Liane · Escalado">Liane</span></span></div>
+      
+    </div><div class="day     ">
+      <div class="dh"><b class="num">28</b><span class="wd">Qua</span>
+        <span class="tag" title="Anotação da escala">TN</span></div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-ok" title="Gabriel · Escalado">Gabriel</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-ok" title="Fabrício · Escalado">Fabrício</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-ok" title="Thales · Escalado">Thales</span></span></div>
+      
+    </div><div class="day     ">
+      <div class="dh"><b class="num">29</b><span class="wd">Qui</span>
+        </div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-falta" title="Fabrício · Escalado, mas não vem">Fabrício</span><span class="c s-extra" title="Samuel · Cobertura (não escalado, vem)">Samuel</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-falta" title="Samuel · Escalado, mas não vem">Samuel</span><span class="c s-extra" title="Liane · Cobertura (não escalado, vem)">Liane</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-ok" title="Liane · Escalado">Liane</span></span></div>
+      
+    </div><div class="day     ">
+      <div class="dh"><b class="num">30</b><span class="wd">Sex</span>
+        </div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-ok" title="Gabriel · Escalado">Gabriel</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-amam" title="Naira · Amamentação (**)">Naira</span><span class="c s-falta" title="Stanley · Escalado, mas não vem">Stanley</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-ok" title="Stanley · Escalado">Stanley</span></span></div>
+      
+    </div><div class="day we    ">
+      <div class="dh"><b class="num">31</b><span class="wd">Sáb</span>
+        </div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-ok" title="Liane · Escalado">Liane</span><span class="c s-amam" title="Naira · Amamentação (**)">Naira</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-ok" title="Liane · Escalado">Liane</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-extra" title="Stanley · Cobertura (não escalado, vem)">Stanley</span><span class="c s-falta" title="Samuel · Escalado, mas não vem">Samuel</span></span></div>
+      
+    </div><div class="day we  outside  ">
+      <div class="dh"><b class="num">01</b><span class="wd">Dom · 01/11</span>
+        </div>
+      <div class="sh sh-M"><span class="st" data-full="07–13h">07</span><span class="nm"><span class="c s-ok" title="Fabrício · Escalado">Fabrício</span></span></div><div class="sh sh-T"><span class="st" data-full="13–19h">13</span><span class="nm"><span class="c s-ok" title="Stanley · Escalado">Stanley</span></span></div><div class="sh sh-N"><span class="st" data-full="19–07h">19</span><span class="nm"><span class="c s-ok" title="Stanley · Escalado">Stanley</span></span></div>
+      
+    </div></div></section>
+  <footer class="legend">
+    <span><span class="c">Nome</span> escalado</span>
+    <span><span class="c s-extra">Nome</span> não escalado, mas vem</span>
+    <span><span class="c s-falta">Nome</span> escalado, mas não vem</span>
+    <span><span class="c s-cong">Nome</span></span>
+    <span><span class="c s-abono">(Nome)</span> abono</span>
+    <span><span class="c s-amam">Nome</span> amamentação</span>
+    <span><span class="ab">Férias</span> <span class="ab licenca">Licença</span></span>
+    <span>Siglas da coluna Obs. (Pr, T, MT, TN, N) e marcas ° + vêm da escala original.</span>
+  </footer></div>
+<script id="app-js">
+(function(){
+"use strict";
+const HEAD_LINKS = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..100,500..800&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">\n<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"><\/script>\n<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"><\/script>\n';
+const SKELETON_HEAD = '<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,-apple-system,sans-serif;background:#fafafa}img{max-width:100%}[hidden]{display:none!important}</style></head><body>';
+
+const STATIC = !!window.ESCALA_STATIC;
+let D = JSON.parse(document.getElementById("escala-data").textContent);
+const WD = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+const MES = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+const PRESENT = new Set(["ok","extra","amam"]);
+const ST = {
+  ok:{label:"Escalado"}, extra:{label:"Cobertura (não escalado, vem)"}, falta:{label:"Escalado, mas não vem"},
+  cong:{label:"Congresso"}, abono:{label:"Abono"}, amam:{label:"Amamentação (**)"}
+};
+const ABT = {ferias:"Férias", licenca:"Licença", congresso:"Congresso"};
+
+const pad = n => String(n).padStart(2,"0");
+const ymd = dt => dt.getFullYear()+"-"+pad(dt.getMonth()+1)+"-"+pad(dt.getDate());
+const pd = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y,m-1,d); };
+const br = s => s ? s.slice(8,10)+"/"+s.slice(5,7) : "";
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const TODAY = ymd(new Date());
+const store = {
+  get(k){ try { return localStorage.getItem("escala-uti:"+k); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem("escala-uti:"+k, v); } catch(e){} }
+};
+
+function person(key){ return D.people.find(p => p.key === key) || {key, short: key.charAt(0)+key.slice(1).toLowerCase(), name: key.charAt(0)+key.slice(1).toLowerCase(), mat:"", aniv:""}; }
+const sn = k => person(k).short;
+const monthKeys = () => Object.keys(D.months).sort();
+const monthLabel = mk => MES[+mk.slice(5,7)-1] + " " + mk.slice(0,4);
+const shiftDef = id => D.shifts.find(s => s.id === id);
+const isHol = d => (D.holidays||[]).find(h => h.d === d);
+const isWE = d => { const w = pd(d).getDay(); return w === 0 || w === 6; };
+function absOn(d, key){ return (D.absences||[]).filter(a => (!key || a.p === key) && a.from <= d && (!a.to || d <= a.to)); }
+
+/* ---------- notação ---------- */
+function parseCell(str){
+  return String(str||"").split("/").map(t => t.trim()).filter(Boolean).map(tok => {
+    let s = "ok", t = tok;
+    if (/^\(.*\)$/.test(t)) { s = "abono"; t = t.slice(1,-1).trim(); }
+    const m = t.match(/^([A-Za-zÀ-ÿ]+)(.*)$/);
+    if (!m) return null;
+    let name = m[1].normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase(), rest = m[2];
+    if (rest.includes("**")) { s = "amam"; rest = rest.replace(/\*\*/g,""); }
+    if (rest.includes("!")) { s = "falta"; rest = rest.replace(/!/g,""); }
+    if (rest.includes("^")) { s = "extra"; rest = rest.replace(/\^/g,""); }
+    if (rest.includes("@")) { s = "cong"; rest = rest.replace(/@/g,""); }
+    const e = {p:name, s};
+    if (rest.trim()) e.m = rest.trim();
+    return e;
+  }).filter(Boolean);
+}
+function toCell(list){
+  return (list||[]).map(e => {
+    let t = e.p + ({falta:"!",extra:"^",cong:"@",amam:"**"}[e.s]||"") + (e.m||"");
+    return e.s === "abono" ? "(" + t + ")" : t;
+  }).join("/");
+}
+
+/* ---------- estado ---------- */
+const hashKey = (location.hash||"").replace("#","").toUpperCase();
+const keys = monthKeys();
+let curDefault = keys.includes(TODAY.slice(0,7)) ? TODAY.slice(0,7) : keys[keys.length-1];
+const S = {
+  month: curDefault,
+  person: D.people.some(p => p.key === hashKey) ? hashKey : (store.get("person") || ""),
+  shifts: {M:true,T:true,N:true},
+  status: "all",
+  showAbs: store.get("showAbs") !== "0",
+  view: store.get("view") || "cal",
+  editMode: false,
+  canEdit: STATIC ? false : null,
+  dirty: false,
+  absType: {ferias:true, licenca:true, congresso:true}
+};
+if (!D.people.some(p => p.key === S.person)) S.person = "";
+if (S.view === "edit") S.view = "cal";
+
+/* ---------- cálculos ---------- */
+function shiftTimes(d, sid){
+  const s = shiftDef(sid); const base = pd(d);
+  const [h1,m1] = s.start.split(":").map(Number), [h2,m2] = s.end.split(":").map(Number);
+  const a = new Date(base); a.setHours(h1,m1,0,0);
+  const b = new Date(base); b.setHours(h2,m2,0,0); if (b <= a) b.setDate(b.getDate()+1);
+  return [a,b];
+}
+function entriesFor(key, mk, inMonthOnly){
+  const out = [];
+  for (const day of (D.months[mk]?.days||[])) {
+    if (inMonthOnly && !day.d.startsWith(mk)) continue;
+    for (const s of D.shifts) for (const e of (day[s.id]||[])) if (e.p === key) {
+      out.push({d:day.d, sid:s.id, e, mates:(day[s.id]||[]).filter(x => x !== e)});
+    }
+  }
+  return out;
+}
+function stats(key, mk){
+  const L = entriesFor(key, mk, true);
+  const r = {sched:0, extra:0, we:0, n:0, days:new Set(), abs:{falta:0,cong:0,abono:0}, list:L};
+  for (const x of L) {
+    const h = shiftDef(x.sid).h;
+    if (PRESENT.has(x.e.s)) {
+      if (x.e.s === "extra") r.extra += h; else r.sched += h;
+      r.n++; r.days.add(x.d);
+      if (isWE(x.d) || isHol(x.d)) r.we += h;
+    } else if (r.abs[x.e.s] !== undefined) r.abs[x.e.s]++;
+  }
+  return r;
+}
+function nextShift(key){
+  const now = new Date(); let best = null;
+  for (const mk of monthKeys()) for (const day of D.months[mk].days) for (const s of D.shifts)
+    for (const e of (day[s.id]||[])) if (e.p === key && PRESENT.has(e.s)) {
+      const [a,b] = shiftTimes(day.d, s.id);
+      if (b > now && (!best || a < best.a)) best = {a,b,d:day.d,sid:s.id};
+    }
+  if (!best) return null;
+  // junta turnos contíguos no mesmo dia (07–13 + 13–19)
+  let end = best.b, d = best.d;
+  for (const s of D.shifts) {
+    const [a,b] = shiftTimes(d, s.id);
+    const day = findDay(d);
+    if (a.getTime() === end.getTime() && (day?.[s.id]||[]).some(e => e.p === key && PRESENT.has(e.s))) end = b;
+  }
+  best.end = end; return best;
+}
+function findDay(d){ for (const mk of monthKeys()) { const x = D.months[mk].days.find(y => y.d === d); if (x) return x; } return null; }
+function rel(a){
+  const ms = a - new Date(); if (ms <= 0) return "em andamento";
+  const h = Math.round(ms/36e5); if (h < 24) return "em " + h + " h";
+  const days = Math.round(ms/864e5); return days === 1 ? "amanhã" : "em " + days + " dias";
+}
+const hh = dt => pad(dt.getHours()) + "h" + (dt.getMinutes() ? pad(dt.getMinutes()) : "");
+
+/* ---------- render ---------- */
+const app = document.getElementById("app");
+function render(){ app.innerHTML = buildHTML(false); }
+function buildHTML(snap){
+  const mk = S.month;
+  const ks = monthKeys(); const i = ks.indexOf(mk);
+  const upd = D.months[mk]?.updated;
+  if (snap) return `
+  <header class="mast">
+    <div><div class="eyebrow">${esc(D.hospital)}</div><h1>Escala <span>${esc(D.unit)}</span></h1></div>
+    <div><div class="monthnav"><div class="mlabel">${monthLabel(mk)}</div></div>
+      ${upd ? `<div class="upd">Atualizada em ${br(upd)}/${upd.slice(0,4)}</div>` : ""}</div>
+  </header>
+  <p class="help" style="margin:12px 0">Toque no seu nome para ver seus plantões. Para usar os filtros, abra a escala pelo link no navegador.</p>
+  ${absStrip()}
+  ${perPerson()}
+  <h2>Calendário do mês</h2>
+  <section class="view">${viewCal()}</section>
+  ${legend()}`;
+  return `
+  <header class="mast">
+    <div><div class="eyebrow">${esc(D.hospital)}</div><h1>Escala <span>${esc(D.unit)}</span></h1></div>
+    <div>
+      <div class="monthnav">
+        <button class="iconbtn" data-act="prev" ${i<=0?"disabled":""} aria-label="Mês anterior">‹</button>
+        <div class="mlabel">${monthLabel(mk)}</div>
+        <button class="iconbtn" data-act="next" ${i>=ks.length-1?"disabled":""} aria-label="Próximo mês">›</button>
+      </div>
+      ${upd ? `<div class="upd">Atualizada em ${br(upd)}/${upd.slice(0,4)}</div>` : ""}
+    </div>
+  </header>
+  ${toolbar()}
+  ${summary()}
+  ${!S.person && S.showAbs ? absStrip() : ""}
+  <nav class="tabs" role="tablist">
+    ${[["cal","Calendário"],["list","Lista"],["abs","Férias e licenças"],["team","Equipe"]].concat(S.editMode?[["edit","Editar escala"]]:[]).map(([k,l]) =>
+      `<button role="tab" aria-selected="${S.view===k}" data-view="${k}">${l}</button>`).join("")}
+  </nav>
+  <section class="view">${({cal:viewCal,list:viewList,abs:viewAbs,team:viewTeam,edit:viewEdit}[S.view]||viewCal)()}</section>
+  ${legend()}
+  ${S.dirty ? `<div class="pubbar"><span>Alterações não publicadas</span><button class="btn primary" data-act="publish">Publicar para a equipe</button><button class="btn" data-act="discard">Descartar</button></div>` : ""}
+  `;
+}
+
+function toolbar(){
+  const opts = D.people.filter(p => usedInMonth(p.key) || absOnMonth(p.key)).map(p => `<option value="${p.key}" ${S.person===p.key?"selected":""}>${esc(p.short)}</option>`).join("");
+  return `<div class="toolbar">
+    <div class="field"><label for="f-person">Plantonista</label>
+      <select id="f-person" data-f="person"><option value="">Todos</option>${opts}</select></div>
+    <div class="field"><span class="flabel">Turnos</span>
+      <div class="seg">${D.shifts.map(s => `<button data-shift="${s.id}" aria-pressed="${S.shifts[s.id]}" title="${s.start}–${s.end}">${s.label}</button>`).join("")}</div></div>
+    <div class="field"><label for="f-status">Situação</label>
+      <select id="f-status" data-f="status">
+        <option value="all">Todas</option>
+        ${Object.entries(ST).map(([k,v]) => `<option value="${k}" ${S.status===k?"selected":""}>${v.label}</option>`).join("")}
+      </select></div>
+    <label class="chk"><input type="checkbox" id="f-abs" data-f="showAbs" ${S.showAbs?"checked":""}> Mostrar férias e licenças</label>
+    <div class="spacer"></div>
+    <div class="actions">
+      <button class="btn" data-act="pdf">${ICON.pdf}PDF</button>
+      <button class="btn wa" data-act="wa">${ICON.wa}WhatsApp</button>
+      ${STATIC || S.canEdit === false ? "" : `<button class="btn" data-act="genhtml" title="Arquivo só de leitura para enviar no grupo">${ICON.file}Gerar arquivo para WhatsApp</button>`}
+      ${S.canEdit === false ? "" : `<button class="btn ${S.editMode?"primary":""}" data-act="edit">${ICON.edit}${S.editMode?"Sair da edição":"Editar"}</button>`}
+    </div>
+  </div>`;
+}
+function usedInMonth(key){ return (D.months[S.month]?.days||[]).some(d => D.shifts.some(s => (d[s.id]||[]).some(e => e.p === key))); }
+function absOnMonth(key){ const a = S.month+"-01", b = S.month+"-31"; return (D.absences||[]).some(x => x.p === key && x.from <= b && (!x.to || x.to >= a)); }
+
+function summary(){
+  if (!S.person) {
+    const rows = D.people.map(p => ({p, s: stats(p.key, S.month)})).filter(x => x.s.n || x.s.list.length).sort((a,b) => (b.s.sched+b.s.extra)-(a.s.sched+a.s.extra));
+    if (!rows.length) return `<div class="summary"><div class="empty" style="grid-column:1/-1">Nenhum plantão lançado em ${monthLabel(S.month)}.</div></div>`;
+    const max = Math.max(...rows.map(x => x.s.sched + x.s.extra), 1);
+    return `<div class="summary"><div class="bars"><h3>Horas no mês por plantonista · toque para filtrar</h3>
+      ${rows.map(({p,s}) => `<button class="barrow" data-pick="${p.key}">
+        <span class="nm">${esc(p.short)}</span>
+        <span class="track"><span class="fill" style="width:${s.sched/max*100}%"></span><span class="fill x" style="width:${s.extra/max*100}%"></span></span>
+        <span class="val num">${s.sched+s.extra} h${s.extra?` <span style="color:var(--extra)">(+${s.extra})</span>`:""}</span></button>`).join("")}
+      <div class="glegend"><span><i class="sw" style="background:var(--accent)"></i>Escalado</span><span><i class="sw" style="background:var(--extra)"></i>Cobertura</span></div>
+    </div></div>`;
+  }
+  const p = person(S.person), s = stats(S.person, S.month), nx = nextShift(S.person);
+  const curAbs = absOn(TODAY, S.person)[0];
+  const upcoming = (D.absences||[]).filter(a => a.p === S.person && a.from > TODAY).sort((a,b) => a.from.localeCompare(b.from))[0];
+  const absCount = s.abs.falta + s.abs.cong + s.abs.abono;
+  const sid2 = (x) => shiftDef(x);
+  return `<div class="summary">
+    <div class="stat hero"><div class="k">Próximo plantão · ${esc(p.short)}</div>
+      ${nx ? `<div class="v">${WD[nx.a.getDay()]} ${br(nx.d)} <small style="color:inherit">${hh(nx.a)}–${hh(nx.end)}</small></div><div class="d">${rel(nx.a)}</div>`
+           : `<div class="v">—</div><div class="d">Sem plantões futuros lançados</div>`}</div>
+    <div class="stat"><div class="k">Horas no mês</div><div class="v num">${s.sched+s.extra}<small>h</small></div>
+      <div class="d">${s.sched} h escaladas${s.extra?` · ${s.extra} h de cobertura`:""}</div></div>
+    <div class="stat"><div class="k">Plantões</div><div class="v num">${s.n}<small>turnos</small></div><div class="d">em ${s.days.size} dias</div></div>
+    <div class="stat"><div class="k">Fim de semana e feriado</div><div class="v num">${s.we}<small>h</small></div></div>
+    <div class="stat"><div class="k">Fora da escala</div><div class="v num">${absCount}<small>turnos</small></div>
+      <div class="d">${[s.abs.cong?`${s.abs.cong} em congresso`:"", s.abs.falta?`${s.abs.falta} não vem`:"", s.abs.abono?`${s.abs.abono} abono`:""].filter(Boolean).join(" · ") || "Nenhum"}</div></div>
+    <div class="stat"><div class="k">${curAbs ? "Afastada(o) agora" : "Próximo afastamento"}</div>
+      ${(curAbs||upcoming) ? `<div class="v" style="font-size:20px">${br((curAbs||upcoming).from)} a ${(curAbs||upcoming).to ? br((curAbs||upcoming).to) : "…"}</div><div class="d">${ABT[(curAbs||upcoming).t]}</div>` : `<div class="v">—</div><div class="d">Nada lançado</div>`}</div>
+  </div>`;
+}
+
+function chip(e){
+  const me = S.person && e.p === S.person;
+  const dim = (S.person && !me) || (S.status !== "all" && e.s !== S.status);
+  const t = `${sn(e.p)} · ${ST[e.s]?.label||e.s}${e.m?` · marca ${e.m}`:""}`;
+  const nm = esc(sn(e.p));
+  return `<span class="c s-${e.s}${me?" me":""}${dim?" dim":""}" title="${esc(t)}">${e.s==="abono"?`(${nm})`:nm}${e.m?`<span class="mk">${esc(e.m)}</span>`:""}</span>`;
+}
+
+function viewCal(){
+  const days = D.months[S.month]?.days || [];
+  if (!days.length) return `<div class="empty">Este mês ainda não tem dias lançados.</div>`;
+  const first = pd(days[0].d).getDay();
+  let html = WD.map(w => `<div class="wdh">${w}</div>`).join("");
+  for (let i=0; i<first; i++) html += `<div class="day blank" aria-hidden="true"></div>`;
+  for (const day of days) {
+    const hol = isHol(day.d);
+    const mine = S.person && D.shifts.some(s => (day[s.id]||[]).some(e => e.p === S.person));
+    const st = S.status !== "all" && !D.shifts.some(s => S.shifts[s.id] && (day[s.id]||[]).some(e => e.s === S.status && (!S.person || e.p === S.person)));
+    const abs = S.showAbs && S.person ? absOn(day.d, S.person) : [];
+    const cls = ["day", (isWE(day.d)||hol)?"we":"", day.d===TODAY?"today":"", !day.d.startsWith(S.month)?"outside":"", mine?"mine":"", (S.person && !mine && !abs.length) || st ? "dim":""].join(" ");
+    html += `<div class="${cls}">
+      <div class="dh"><b class="num">${day.d.slice(8)}</b><span class="wd">${WD[pd(day.d).getDay()]}${!day.d.startsWith(S.month)?" · "+br(day.d):""}</span>
+        ${day.tag?`<span class="tag" title="Anotação da escala">${esc(day.tag)}</span>`:""}${hol?`<span class="hol">${esc(hol.name)}</span>`:""}</div>
+      ${D.shifts.filter(s => S.shifts[s.id]).map(s => {
+        const L = day[s.id]||[]; const m = S.person && L.some(e => e.p === S.person);
+        return `<div class="sh sh-${s.id}${m?" mine":""}"><span class="st" data-full="${s.start.slice(0,2)}–${s.end.slice(0,2)}h">${s.start.slice(0,2)}</span><span class="nm">${L.length?L.map(chip).join(""):`<span class="c dim">—</span>`}</span></div>`;
+      }).join("")}
+      ${abs.length?`<div class="abs">${abs.map(a => `<span class="ab ${a.t}" title="${esc(ABT[a.t]+(a.note?" · "+a.note:""))}">${ABT[a.t]} ${esc(sn(a.p))}</span>`).join("")}</div>`:""}
+    </div>`;
+  }
+  return `<div class="cal">${html}</div>`;
+}
+
+function viewList(){
+  const days = D.months[S.month]?.days || [];
+  const shifts = D.shifts.filter(s => S.shifts[s.id]);
+  if (S.person) {
+    const L = entriesFor(S.person, S.month, false).filter(x => S.shifts[x.sid] && (S.status==="all" || x.e.s===S.status));
+    const abs = (D.absences||[]).filter(a => a.p === S.person && a.from <= S.month+"-31" && (!a.to || a.to >= S.month+"-01"));
+    return `${L.length ? `<div class="tw"><table><thead><tr><th>Data</th><th>Turno</th><th>Horário</th><th>Situação</th><th>Junto no turno</th><th>Obs.</th></tr></thead><tbody>
+      ${L.map(x => { const s = shiftDef(x.sid); const day = findDay(x.d);
+        return `<tr class="${isWE(x.d)||isHol(x.d)?"we":""}"><td class="num"><b>${WD[pd(x.d).getDay()]}</b> ${br(x.d)}</td><td>${s.label}</td><td class="mono">${s.start}–${s.end}</td>
+        <td><span class="pill ${x.e.s}">${ST[x.e.s]?.label}</span></td><td>${x.mates.map(chip).join(" ")||"—"}</td><td>${esc([day?.tag, isHol(x.d)?.name, x.e.m].filter(Boolean).join(" · "))}</td></tr>`; }).join("")}
+      </tbody></table></div>` : `<div class="empty">Nenhum turno de ${esc(sn(S.person))} com esses filtros.</div>`}
+      ${S.showAbs && abs.length ? `<h2>Afastamentos no mês</h2><div class="tw"><table><thead><tr><th>Tipo</th><th>Período</th><th>Obs.</th></tr></thead><tbody>${abs.map(a => `<tr><td><span class="ab ${a.t}">${ABT[a.t]}</span></td><td class="num">${br(a.from)} a ${a.to?br(a.to):"sem término"}</td><td>${esc(a.note)}</td></tr>`).join("")}</tbody></table></div>`:""}`;
+  }
+  const rows = days.filter(day => S.status==="all" || shifts.some(s => (day[s.id]||[]).some(e => e.s===S.status)));
+  if (!rows.length) return `<div class="empty">Nenhum dia com esses filtros.</div>`;
+  return `<div class="tw"><table><thead><tr><th>Dia</th>${shifts.map(s => `<th>${s.start.slice(0,2)}–${s.end.slice(0,2)}h</th>`).join("")}<th>Obs.</th>${S.showAbs?"<th>Afastados</th>":""}</tr></thead><tbody>
+    ${rows.map(day => `<tr class="${isWE(day.d)||isHol(day.d)?"we":""}"><td class="num" style="white-space:nowrap"><b>${WD[pd(day.d).getDay()]}</b> ${br(day.d)}</td>
+      ${shifts.map(s => `<td>${(day[s.id]||[]).map(chip).join(" / ")||"—"}</td>`).join("")}
+      <td>${esc([day.tag, isHol(day.d)?.name].filter(Boolean).join(" · "))}</td>
+      ${S.showAbs?`<td>${absOn(day.d).map(a => `<span class="ab ${a.t}">${esc(sn(a.p))}</span>`).join(" ")}</td>`:""}</tr>`).join("")}
+  </tbody></table></div>`;
+}
+
+function viewAbs(){
+  const year = +S.month.slice(0,4);
+  const y0 = new Date(year,0,1), y1 = new Date(year+1,0,1), span = y1 - y0;
+  const pos = s => Math.max(0, Math.min(1, (pd(s) - y0) / span));
+  const curM = +S.month.slice(5,7)-1;
+  const tpos = (new Date() - y0) / span;
+  const keys = [...new Set(D.people.map(p => p.key).concat((D.absences||[]).map(a => a.p)))];
+  const rows = keys.map(k => {
+    const list = (D.absences||[]).filter(a => a.p === k && S.absType[a.t] && a.from < year+1+"-01-01" && (!a.to || a.to >= year+"-01-01"));
+    const dim = S.person && S.person !== k;
+    return `<div class="grow${dim?" dim":""}"><span class="gn">${esc(sn(k))}</span><div class="gtrack">
+      <div class="gmonths">${MES.map((m,i) => `<div class="${i===curM?"cur":""}"></div>`).join("")}</div>
+      ${list.map(a => { const l = pos(a.from), r = a.to ? pos(ymd(new Date(pd(a.to).getTime()+864e5))) : pos(S.month.slice(0,7)+"-28");
+        return `<span class="gbar ${a.t}${a.to?"":" open"}" style="left:${l*100}%;width:${Math.max(r-l,.004)*100}%" title="${esc(ABT[a.t]+": "+br(a.from)+" a "+(a.to?br(a.to):"sem término")+(a.note?" · "+a.note:""))}"></span>`; }).join("")}
+      ${tpos>0 && tpos<1 ? `<span class="gtoday" style="left:${tpos*100}%"></span>`:""}
+    </div></div>`;
+  }).join("");
+  const all = (D.absences||[]).map((a,i) => ({a,i})).filter(({a}) => S.absType[a.t] && (!S.person || a.p === S.person)).sort((x,y) => x.a.from.localeCompare(y.a.from));
+  return `<div class="row" style="margin-bottom:10px">
+      ${Object.entries(ABT).map(([k,l]) => `<label class="chk" style="padding-top:0"><input type="checkbox" data-abst="${k}" ${S.absType[k]?"checked":""}><i class="sw ${k}"></i>${l}</label>`).join("")}
+    </div>
+    <div class="gantt"><div class="grow ghead"><span></span><div class="gtrack" style="border-left:0"><div class="gmonths">${MES.map(m => `<div>${m.slice(0,3)}</div>`).join("")}</div></div></div>${rows}
+      <div class="glegend"><span><i class="sw"></i>Férias</span><span><i class="sw licenca"></i>Licença</span><span><i class="sw congresso"></i>Congresso</span><span><i class="sw" style="background:var(--falta);width:2px"></i>Hoje</span><span>Faixa do mês aberto destacada</span></div>
+    </div>
+    <h2>Períodos lançados${S.person?" · "+esc(sn(S.person)):""}</h2>
+    ${all.length ? `<div class="tw"><table><thead><tr><th>Plantonista</th><th>Tipo</th><th>Início</th><th>Fim</th><th>Dias</th><th>Obs.</th>${S.editMode?"<th></th>":""}</tr></thead><tbody>
+      ${all.map(({a,i}) => `<tr><td><b>${esc(sn(a.p))}</b></td><td><span class="ab ${a.t}">${ABT[a.t]}</span></td><td class="num">${br(a.from)}/${a.from.slice(0,4)}</td><td class="num">${a.to?br(a.to)+"/"+a.to.slice(0,4):"sem término"}</td>
+        <td class="num">${a.to?Math.round((pd(a.to)-pd(a.from))/864e5)+1:"—"}</td><td>${esc(a.note)}</td>${S.editMode?`<td><button class="btn small danger" data-delabs="${i}">Remover</button></td>`:""}</tr>`).join("")}
+    </tbody></table></div>` : `<div class="empty">Nenhum período lançado com esses filtros.</div>`}
+    ${S.editMode ? `<h2>Lançar afastamento</h2><div class="editbox"><div class="row">
+      <div class="field"><label for="na-p">Plantonista</label><select id="na-p">${D.people.map(p => `<option value="${p.key}">${esc(p.short)}</option>`).join("")}</select></div>
+      <div class="field"><label for="na-t">Tipo</label><select id="na-t">${Object.entries(ABT).map(([k,l]) => `<option value="${k}">${l}</option>`).join("")}</select></div>
+      <div class="field"><label for="na-f">Início</label><input type="date" id="na-f"></div>
+      <div class="field"><label for="na-to">Fim (vazio = sem término)</label><input type="date" id="na-to"></div>
+      <div class="field" style="flex:1;min-width:160px"><label for="na-n">Observação</label><input type="text" id="na-n"></div>
+      <button class="btn primary" data-act="addabs">Adicionar</button></div></div>` : ""}`;
+}
+
+function viewTeam(){
+  const year = S.month.slice(0,4);
+  const ab = D.abonos || {};
+  const keys = [...new Set(D.people.map(p => p.key).concat(Object.keys(ab)))];
+  return `<div class="tw"><table><thead><tr><th>Plantonista</th><th>Nome</th><th>Matrícula</th><th>Aniversário</th><th>Férias ${year}</th><th>Abonos ${year}</th>${S.editMode?"<th></th>":""}</tr></thead><tbody>
+    ${keys.map(k => { const p = person(k); const fe = (D.absences||[]).filter(a => a.p === k && a.t === "ferias" && (a.from.startsWith(year) || (a.to||"").startsWith(year)));
+      return `<tr${S.person===k?' style="background:var(--accent-soft)"':""}><td><b>${esc(p.short)}</b></td><td>${esc(p.name)}</td><td class="mono">${esc(p.mat)||"—"}</td><td class="num">${esc(p.aniv)||"—"}</td>
+      <td class="num">${fe.map(a => br(a.from)+"–"+br(a.to)).join("<br>")||"—"}</td><td class="num">${(ab[k]||[]).join(", ")||"—"}</td>
+      ${S.editMode?`<td>${D.people.some(x=>x.key===k)?`<button class="btn small danger" data-delperson="${k}">Remover</button>`:""}</td>`:""}</tr>`; }).join("")}
+  </tbody></table></div>
+  ${S.editMode ? `<h2>Adicionar plantonista</h2><div class="editbox"><div class="row">
+    <div class="field"><label for="np-k">Nome na escala</label><input type="text" id="np-k" placeholder="BRENA"></div>
+    <div class="field"><label for="np-s">Nome curto</label><input type="text" id="np-s" placeholder="Brena"></div>
+    <div class="field" style="flex:1;min-width:180px"><label for="np-n">Nome completo</label><input type="text" id="np-n"></div>
+    <div class="field"><label for="np-m">Matrícula</label><input type="text" id="np-m"></div>
+    <div class="field"><label for="np-a">Aniversário (dd/mm)</label><input type="text" id="np-a" style="width:110px"></div>
+    <button class="btn primary" data-act="addperson">Adicionar</button></div>
+    <div class="help">O nome na escala é o que se digita na grade (sem acento, maiúsculas). Abonos ficam no arquivo de dados; peça ajuda para importar uma nova lista.</div></div>` : ""}`;
+}
+
+function viewEdit(){
+  const m = D.months[S.month]; const known = new Set(D.people.map(p => p.key));
+  const hols = (D.holidays||[]).filter(h => h.d.startsWith(S.month)).map(h => h.d.slice(8)+"="+h.name).join("; ");
+  return `<div class="editbox">
+    <div class="help"><b>Como digitar:</b> nomes como na planilha, separados por <code>/</code>. Marque a situação com um símbolo depois do nome:
+      <code>NOME!</code> escalado mas não vem · <code>NOME^</code> não escalado mas vem · <code>NOME@</code> congresso · <code>(NOME)</code> abono · <code>NOME**</code> amamentação.
+      Outros símbolos (° +) ficam como marca. Exemplo: <code>FABRICIO^°/(LIANE)</code>. Campos em vermelho têm nome fora da equipe.</div>
+    <div class="row">
+      <button class="btn" data-act="newmonth">Criar ${monthLabel(nextKey())}</button>
+      <button class="btn" data-act="paste">Colar da planilha</button>
+      <button class="btn" data-act="exportjson">Baixar backup (.json)</button>
+      <label class="btn" for="imp">Importar backup<input type="file" id="imp" accept=".json,application/json" hidden></label>
+      ${monthKeys().length>1?`<button class="btn danger" data-act="delmonth">Excluir ${monthLabel(S.month)}</button>`:""}
+    </div>
+    <div class="field" style="max-width:520px"><label for="e-hol">Feriados do mês (dia=nome; separados por ponto e vírgula)</label><input type="text" id="e-hol" value="${esc(hols)}" placeholder="12=N. Sra. Aparecida"></div>
+    <div class="tw eg"><table><thead><tr><th>Dia</th>${D.shifts.map(s => `<th>${s.start}–${s.end}</th>`).join("")}<th>Obs.</th></tr></thead><tbody>
+      ${(m?.days||[]).map(day => `<tr class="${isWE(day.d)||isHol(day.d)?"we":""}"><td class="num" style="white-space:nowrap"><b>${WD[pd(day.d).getDay()]}</b> ${br(day.d)}</td>
+        ${D.shifts.map(s => { const v = toCell(day[s.id]); const bad = (day[s.id]||[]).some(e => !known.has(e.p));
+          return `<td><input type="text" class="${bad?"warn":""}" id="e-${day.d}-${s.id}" data-cell="${day.d}|${s.id}" value="${esc(v)}" aria-label="${br(day.d)} ${s.start}"></td>`; }).join("")}
+        <td><input type="text" class="tagin" id="e-${day.d}-tag" data-tag="${day.d}" value="${esc(day.tag)}" aria-label="Obs ${br(day.d)}"></td></tr>`).join("")}
+    </tbody></table></div>
+  </div>`;
+}
+
+function legend(){
+  return `<footer class="legend">
+    <span><span class="c">Nome</span> escalado</span>
+    <span><span class="c s-extra">Nome</span> não escalado, mas vem</span>
+    <span><span class="c s-falta">Nome</span> escalado, mas não vem</span>
+    <span><span class="c s-cong">Nome</span></span>
+    <span><span class="c s-abono">(Nome)</span> abono</span>
+    <span><span class="c s-amam">Nome</span> amamentação</span>
+    <span><span class="ab">Férias</span> <span class="ab licenca">Licença</span></span>
+    <span>Siglas da coluna Obs. (Pr, T, MT, TN, N) e marcas ° + vêm da escala original.</span>
+  </footer>`;
+}
+
+const ICON = {
+  file:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M10 13l-2 2 2 2M14 13l2 2-2 2"/></svg>',
+  pdf:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 12v6M9 15l3 3 3-3"/></svg>',
+  wa:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 21l2.1-5.4A8.4 8.4 0 1 1 21 11.5z"/></svg>',
+  edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>'
+};
+
+/* ---------- edição ---------- */
+function markDirty(){ if (!S.dirty) { S.dirty = true; render(); } }
+function nextKey(){ const ks = monthKeys(); const last = ks[ks.length-1]; let y = +last.slice(0,4), m = +last.slice(5,7)+1; if (m>12){m=1;y++;} return y+"-"+pad(m); }
+function blankMonth(mk){
+  const [y,m] = mk.split("-").map(Number); const n = new Date(y,m,0).getDate(); const days = [];
+  for (let d=1; d<=n; d++) { const day = {d: mk+"-"+pad(d), tag:""}; D.shifts.forEach(s => day[s.id] = []); days.push(day); }
+  return {days, updated: TODAY};
+}
+function pasteParse(text){
+  const days = []; let cur = null; const mk = S.month;
+  for (const raw of text.split(/\r?\n/)) {
+    if (!raw.trim()) continue;
+    let cols = raw.includes("\t") ? raw.split("\t") : raw.split("|");
+    cols = cols.map(c => c.trim());
+    if (!/^\d{1,2}$/.test(cols[0])) continue;
+    const dn = +cols[0];
+    if (!cur) cur = new Date(+mk.slice(0,4), +mk.slice(5,7)-1, dn);
+    else { const nx = new Date(cur); nx.setDate(nx.getDate()+1); if (nx.getDate() !== dn) { nx.setDate(dn); } cur = nx; }
+    let rest = cols.slice(1);
+    if (rest[0] && /^(dom|seg|ter|qua|qui|sex|s[aá]b)/i.test(rest[0])) rest = rest.slice(1);
+    const day = {d: ymd(cur), tag: rest[3] || ""};
+    D.shifts.forEach((s,i) => day[s.id] = parseCell(rest[i]||""));
+    days.push(day);
+  }
+  return days;
+}
+
+async function publish(){
+  const btn = app.querySelector('[data-act="publish"]'); if (btn) { btn.disabled = true; btn.textContent = "Publicando…"; }
+  if (D.months[S.month]) D.months[S.month].updated = TODAY;
+  const a = window.claude?.use ? await window.claude.use("artifact") : null;
+  if (!a) { toast("A publicação não está disponível nesta visualização. Baixe o backup .json para não perder as alterações."); if (btn) { btn.disabled=false; btn.textContent="Publicar para a equipe"; } return; }
+  const json = JSON.stringify(D).replace(/</g,"\\u003c");
+  const html = SKELETON_HEAD + "<title>Escala UTI Adulto</title>\n" + HEAD_LINKS.split("\n")[0] + "\n<style id=\"app-style\">" + document.getElementById("app-style").textContent + "</style>\n" + HEAD_LINKS.split("\n").slice(1).join("\n") +
+    "<script type=\"application/json\" id=\"escala-data\">" + json + "<\/script>\n<div id=\"app\"></div>\n<script id=\"app-js\">" + document.getElementById("app-js").textContent + "<\/script></body></html>";
+  try { await a.publish(html); S.dirty = false; toast("Publicada. Quem abrir o link já vê esta versão."); }
+  catch (e) {
+    const c = e?.code;
+    if (c === "conflict") toast("Outra pessoa publicou antes. A página vai recarregar com a versão nova.");
+    else if (c === "not_writer" || c === "not_granted" || c === "capability_disabled") { S.canEdit = false; toast("Você pode ver a escala, mas não tem permissão para publicar. Peça acesso de edição ao dono da página."); }
+    else toast("Não foi possível publicar (" + (c||"erro") + "). Tente de novo em instantes.");
+    if (btn) { btn.disabled=false; btn.textContent="Publicar para a equipe"; }
+  }
+}
+
+/* ---------- PDF ---------- */
+const RGB = { ok:[20,33,43], extra:[29,92,191], falta:[191,47,40], cong:[43,122,55], abono:[111,101,130], amam:[154,98,0] };
+async function saveFile(filename, data){
+  if (STATIC || !window.claude?.use) {
+    try {
+      const blob = data instanceof Blob ? data : new Blob([data], {type: filename.endsWith(".html") ? "text/html" : "application/octet-stream"});
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = filename;
+      document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+    } catch (e) { toast("Não foi possível baixar o arquivo neste aparelho."); }
+    return;
+  }
+  const dl = await window.claude.use("downloads");
+  if (!dl) { toast("O download não está disponível nesta visualização."); return; }
+  try { await dl.save({filename, data}); }
+  catch (e) { if (e?.code === "declined") return; toast(e?.code === "rate_limited" ? "Já existe um download aguardando confirmação." : "Não foi possível gerar o arquivo."); }
+}
+function pdfReady(){ if (!window.jspdf?.jsPDF) { toast("O gerador de PDF ainda está carregando. Tente em alguns segundos."); return false; } return true; }
+const asc = s => String(s).replace(/–/g,"-");
+
+function pdfMonth(){
+  if (!pdfReady()) return;
+  const {jsPDF} = window.jspdf; const doc = new jsPDF({orientation:"landscape", unit:"mm", format:"a4"});
+  const mk = S.month, days = D.months[mk].days;
+  doc.setFont("helvetica","bold"); doc.setFontSize(16);
+  doc.text(`Escala ${D.unit} - ${monthLabel(mk).replace(/^./,c=>c.toUpperCase())}`, 12, 14);
+  doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(90);
+  doc.text(`${D.hospital}${S.person?"  |  Destaque: "+person(S.person).short:""}  |  Atualizada em ${br(D.months[mk].updated||TODAY)}/${(D.months[mk].updated||TODAY).slice(0,4)}`, 12, 19);
+  doc.setTextColor(0);
+  const body = days.map(day => [br(day.d), WD[pd(day.d).getDay()], ...D.shifts.map(s => (day[s.id]||[]).map(e => e.s==="abono"?`(${sn(e.p)})`:sn(e.p)+(e.s==="amam"?"**":"")+(e.m||"")).join(" / ")), [day.tag, isHol(day.d)?.name].filter(Boolean).join(" "), absOn(day.d).map(a => sn(a.p)).join(", ")]);
+  doc.autoTable({
+    startY: 23, head:[["Dia","",...D.shifts.map(s => `${s.start}-${s.end}`),"Obs.","Afastados"]], body,
+    styles:{fontSize:8.5, cellPadding:1.4, lineColor:[210,218,224], lineWidth:.15, valign:"middle"},
+    headStyles:{fillColor:[20,33,43], textColor:255, fontStyle:"bold"},
+    columnStyles:{0:{cellWidth:13},1:{cellWidth:11},2:{halign:"center"},3:{halign:"center"},4:{halign:"center"},5:{cellWidth:28},6:{cellWidth:38, textColor:[107,72,179], fontSize:7.5}},
+    margin:{left:12,right:12},
+    didParseCell(dt){
+      if (dt.section !== "body") return;
+      const day = days[dt.row.index];
+      if (isWE(day.d) || isHol(day.d)) dt.cell.styles.fillColor = [238,242,245];
+      if (S.person && dt.column.index>=2 && dt.column.index<=4 && (day[D.shifts[dt.column.index-2].id]||[]).some(e => e.p===S.person)) dt.cell.styles.fillColor = [213,235,232];
+    },
+    willDrawCell(dt){ if (dt.section==="body" && dt.column.index>=2 && dt.column.index<=4) { dt.cell._keep = dt.cell.text; dt.cell.text = []; } },
+    didDrawCell(dt){
+      if (dt.section!=="body" || dt.column.index<2 || dt.column.index>4) return;
+      const L = days[dt.row.index][D.shifts[dt.column.index-2].id] || []; if (!L.length) return;
+      const parts = []; L.forEach((e,i) => { if (i) parts.push({t:" / ", c:[120,120,120]}); parts.push({t:(e.s==="abono"?`(${sn(e.p)})`:sn(e.p)+(e.s==="amam"?"**":"")+(e.m||"")), c:RGB[e.s]||RGB.ok, e}); });
+      doc.setFontSize(8.5);
+      const w = parts.reduce((a,p) => { doc.setFont("helvetica", p.e && S.person===p.e.p ? "bold":"normal"); return a + doc.getTextWidth(asc(p.t)); }, 0);
+      let x = dt.cell.x + (dt.cell.width - w)/2; const y = dt.cell.y + dt.cell.height/2 + 1.1;
+      for (const p of parts) {
+        doc.setFont("helvetica", p.e && S.person===p.e.p ? "bold":"normal"); doc.setTextColor(...p.c);
+        const t = asc(p.t), tw = doc.getTextWidth(t); doc.text(t, x, y);
+        if (p.e && (p.e.s==="falta"||p.e.s==="cong")) { doc.setDrawColor(...p.c); doc.setLineWidth(.25); doc.line(x, y-1, x+tw, y-1); }
+        x += tw;
+      }
+      doc.setTextColor(0); doc.setFont("helvetica","normal");
+    }
+  });
+  let y = doc.lastAutoTable.finalY + 6;
+  if (y > 185) { doc.addPage(); y = 15; }
+  doc.setFontSize(8.5); let x = 12;
+  [["Escalado","ok"],["Nao escalado, mas vem","extra"],["Escalado, mas nao vem (riscado)","falta"],["Congresso (riscado)","cong"],["(Abono)","abono"],["** Amamentacao","amam"]].forEach(([l,k]) => { doc.setTextColor(...RGB[k]); doc.text(l, x, y); x += doc.getTextWidth(l) + 7; });
+  doc.setTextColor(0);
+  const a = (D.absences||[]).filter(z => z.from <= mk+"-31" && (!z.to || z.to >= mk+"-01"));
+  if (a.length) { y += 6; doc.setFont("helvetica","bold"); doc.text("Ferias e licencas no mes:", 12, y); doc.setFont("helvetica","normal");
+    doc.text(a.map(z => `${sn(z.p)} - ${ABT[z.t]} ${br(z.from)} a ${z.to?br(z.to):"..."}`).join("   |   "), 12, y+4.5, {maxWidth: 270}); }
+  saveFile(`Escala UTI Adulto ${monthLabel(mk)}${S.person?" - "+person(S.person).short:""}.pdf`, doc.output("blob"));
+}
+
+function pdfPerson(){
+  if (!pdfReady()) return;
+  const {jsPDF} = window.jspdf; const doc = new jsPDF({unit:"mm", format:"a4"});
+  const p = person(S.person), mk = S.month, s = stats(S.person, mk);
+  doc.setFont("helvetica","bold"); doc.setFontSize(16); doc.text(`Plantoes de ${p.short} - ${monthLabel(mk)}`, 14, 16);
+  doc.setFont("helvetica","normal"); doc.setFontSize(9.5); doc.setTextColor(90);
+  doc.text(`${p.name}${p.mat?"  |  Matricula "+p.mat:""}  |  ${D.unit}, ${D.hospital}`, 14, 22);
+  doc.setTextColor(0); doc.setFontSize(11);
+  doc.text(`${s.sched+s.extra} h no mes (${s.sched} h escaladas${s.extra?`, ${s.extra} h de cobertura`:""})  |  ${s.n} turnos em ${s.days.size} dias  |  ${s.we} h em fim de semana/feriado`, 14, 30);
+  doc.autoTable({ startY: 35,
+    head:[["Data","Dia","Turno","Horario","Situacao","Junto no turno"]],
+    body: s.list.map(x => { const sd = shiftDef(x.sid); return [br(x.d), WD[pd(x.d).getDay()], sd.label, `${sd.start}-${sd.end}`, ST[x.e.s].label, x.mates.map(m => sn(m.p)).join(", ")]; }),
+    styles:{fontSize:10, cellPadding:2}, headStyles:{fillColor:[12,106,100]},
+    didParseCell(dt){ if (dt.section==="body") { const x = s.list[dt.row.index]; if (!PRESENT.has(x.e.s)) dt.cell.styles.textColor = RGB[x.e.s]; else if (x.e.s==="extra") dt.cell.styles.textColor = RGB.extra; if (isWE(x.d)||isHol(x.d)) dt.cell.styles.fillColor=[238,242,245]; } }
+  });
+  const a = (D.absences||[]).filter(z => z.p === S.person && (!z.to || z.to >= mk+"-01")).sort((x,y) => x.from.localeCompare(y.from)).slice(0,4);
+  if (a.length) { let y = doc.lastAutoTable.finalY + 8; doc.setFont("helvetica","bold"); doc.text("Afastamentos:", 14, y); doc.setFont("helvetica","normal");
+    a.forEach((z,i) => doc.text(`${ABT[z.t]}: ${br(z.from)}/${z.from.slice(0,4)} a ${z.to?br(z.to)+"/"+z.to.slice(0,4):"sem termino"}`, 14, y + 5.5*(i+1))); }
+  saveFile(`Plantoes ${p.short} ${monthLabel(mk)}.pdf`, doc.output("blob"));
+}
+
+/* ---------- WhatsApp ---------- */
+function monthAbs(mk){ return (D.absences||[]).filter(z => z.from <= mk+"-31" && (!z.to || z.to >= mk+"-01")).sort((a,b) => a.from.localeCompare(b.from)); }
+function absStrip(){
+  const L = monthAbs(S.month); if (!L.length) return "";
+  return `<div class="absum"><span class="flabel">Afastamentos no mês</span>${L.map(a => `<span class="ab ${a.t}" title="${esc(a.note||"")}">${ABT[a.t]} ${esc(sn(a.p))} · ${br(a.from)}–${a.to?br(a.to):"…"}</span>`).join("")}</div>`;
+}
+function personLines(key, mk){
+  const s = stats(key, mk); const byDay = {};
+  s.list.forEach(x => (byDay[x.d] = byDay[x.d] || []).push(x));
+  const lines = Object.keys(byDay).sort().map(d => {
+    const L = byDay[d]; const pres = L.filter(x => PRESENT.has(x.e.s)); const parts = [];
+    if (pres.length) { const [a] = shiftTimes(d, pres[0].sid); const [,b] = shiftTimes(d, pres[pres.length-1].sid); parts.push(`${hh(a)}–${hh(b)}${pres.some(x=>x.e.s==="extra")?" (cobertura)":""}`); }
+    L.filter(x => !PRESENT.has(x.e.s)).forEach(x => parts.push(`${shiftDef(x.sid).label.toLowerCase()}: ${ST[x.e.s].label.toLowerCase()}`));
+    return {d, we: isWE(d)||!!isHol(d), present: pres.length > 0, text: parts.join(" · ")};
+  });
+  return {s, lines};
+}
+function perPerson(){
+  const mk = S.month;
+  const rows = D.people.map(p => ({p, ...personLines(p.key, mk)})).filter(x => x.lines.length || monthAbs(mk).some(a => a.p === x.p.key))
+    .sort((a,b) => a.p.short.localeCompare(b.p.short, "pt"));
+  return `<h2>Plantões por pessoa</h2><div class="pp">${rows.map(({p,s,lines}) => {
+    const ab = monthAbs(mk).filter(a => a.p === p.key);
+    return `<details id="p-${p.key.toLowerCase()}"><summary><span class="ppn">${esc(p.short)}</span><span class="ppm num">${s.sched+s.extra} h · ${s.n} turnos</span></summary>
+      <ul>${lines.map(l => `<li class="${l.we?"we":""}${l.present?"":" off"}"><b class="num">${WD[pd(l.d).getDay()]} ${br(l.d)}</b><span>${esc(l.text)}</span></li>`).join("")}
+      ${ab.map(a => `<li class="abl ${a.t}"><b>${ABT[a.t]}</b><span>${br(a.from)} a ${a.to?br(a.to):"sem término"}</span></li>`).join("")}</ul></details>`;
+  }).join("")}</div>`;
+}
+function waText(){
+  const mk = S.month, M = monthLabel(mk).replace(/^./,c=>c.toUpperCase());
+  if (S.person) {
+    const p = person(S.person); const {s, lines: PL} = personLines(S.person, mk);
+    const lines = PL.map(l => `• ${WD[pd(l.d).getDay()]} ${br(l.d)} · ${l.text}`);
+    const ab = monthAbs(mk).filter(z => z.p === S.person);
+    return `*Plantões de ${p.short} · ${M}*\n${D.unit} · ${D.hospital}\n\n${lines.join("\n")}\n\nTotal: ${s.sched+s.extra} h em ${s.days.size} dias` + (ab.length ? `\n${ab.map(z => `${ABT[z.t]}: ${br(z.from)} a ${z.to?br(z.to):"…"}`).join("\n")}` : "");
+  }
+  const lines = D.months[mk].days.map(day => `${WD[pd(day.d).getDay()]} ${br(day.d)} · ` + D.shifts.map(s => `${s.start.slice(0,2)}h ${(day[s.id]||[]).filter(e => PRESENT.has(e.s)).map(e => sn(e.p)).join("/") || "—"}`).join(" · "));
+  return `*Escala ${D.unit} · ${M}*\n${D.hospital}\n(quem está de fato no plantão)\n\n${lines.join("\n")}`;
+}
+function openShare(){
+  const t = waText();
+  showModal(`<h3>Enviar pelo WhatsApp</h3>
+    <div class="help">Mensagem pronta${S.person?` com os plantões de ${esc(sn(S.person))}`:" com a escala do mês"}. Para mandar o PDF junto, toque em <b>Baixar PDF</b> e anexe o arquivo na conversa.${STATIC ? "" : " No app do Claude no celular, o download abre a tela de compartilhar, onde dá para escolher o WhatsApp direto."}</div>
+    <textarea id="wa-text" readonly>${esc(t)}</textarea>
+    <div class="row"><button class="btn" data-act="copywa">Copiar texto</button>
+      <a class="btn wa" href="https://wa.me/?text=${encodeURIComponent(t)}" target="_blank" rel="noopener">${ICON.wa}Abrir no WhatsApp</a>
+      <button class="btn" data-act="pdfnow">${ICON.pdf}Baixar PDF</button>
+      <span class="spacer"></span><button class="btn" data-act="close">Fechar</button></div>`);
+}
+function openPdfChoice(){
+  if (!S.person) { pdfMonth(); return; }
+  showModal(`<h3>Qual PDF?</h3><div class="help">A escala completa sai em paisagem, com os turnos de ${esc(sn(S.person))} destacados. O individual lista só os turnos dela(e), com horas e afastamentos.</div>
+    <div class="row"><button class="btn primary" data-act="pdfperson">PDF de ${esc(sn(S.person))}</button><button class="btn" data-act="pdfmonth">Escala completa</button><span class="spacer"></span><button class="btn" data-act="close">Fechar</button></div>`);
+}
+
+/* ---------- arquivo só de leitura ---------- */
+function genStatic(){
+  if (S.dirty) { toast("Publique ou descarte as alterações antes de gerar o arquivo."); return; }
+  const keep = {person:S.person, status:S.status, shifts:{...S.shifts}, showAbs:S.showAbs};
+  Object.assign(S, {person:"", status:"all", shifts:{M:true,T:true,N:true}, showAbs:true});
+  const snap = buildHTML(true);
+  Object.assign(S, keep);
+  const json = JSON.stringify(D).replace(/</g,"\\u003c");
+  const reset = ":root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}";
+  const M = monthLabel(S.month).replace(/^./,c=>c.toUpperCase());
+  const html = '<!doctype html>\n<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">' +
+    `<title>Escala ${esc(D.unit)} · ${M}</title>\n` + HEAD_LINKS.split("\n")[0] + "\n<style>" + reset + "</style><style id=\"app-style\">" + document.getElementById("app-style").textContent + "</style>\n" +
+    HEAD_LINKS.split("\n").slice(1).join("\n") + "</head><body>\n<script type=\"application/json\" id=\"escala-data\">" + json + "<\/script>\n<script>window.ESCALA_STATIC=true<\/script>\n<div id=\"app\">" + snap +
+    "</div>\n<script id=\"app-js\">" + document.getElementById("app-js").textContent + "<\/script>\n</body></html>";
+  saveFile("index.html", html);
+}
+
+/* ---------- UI helpers ---------- */
+let modalEl = null, toastT = null;
+function showModal(inner){ closeModal(); modalEl = document.createElement("div"); modalEl.className = "modal"; modalEl.innerHTML = `<div class="sheet" role="dialog" aria-modal="true">${inner}</div>`; document.body.appendChild(modalEl); modalEl.addEventListener("click", onClick); modalEl.addEventListener("mousedown", e => { if (e.target === modalEl) closeModal(); }); }
+function closeModal(){ if (modalEl) { modalEl.remove(); modalEl = null; } }
+function toast(msg){ let t = document.querySelector(".toast"); if (!t) { t = document.createElement("div"); t.className = "toast"; t.setAttribute("role","status"); document.body.appendChild(t); } t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 4200); }
+function setPerson(k){ S.person = k; store.set("person", k); render(); }
+
+/* ---------- eventos ---------- */
+function onClick(ev){
+  const el = ev.target.closest("[data-act],[data-view],[data-shift],[data-pick],[data-delabs],[data-delperson]"); if (!el) return;
+  if (el.dataset.view) { S.view = el.dataset.view; if (S.view !== "edit") store.set("view", S.view); render(); return; }
+  if (el.dataset.shift) { S.shifts[el.dataset.shift] = !S.shifts[el.dataset.shift]; if (!Object.values(S.shifts).some(Boolean)) S.shifts[el.dataset.shift] = true; render(); return; }
+  if (el.dataset.pick) { setPerson(el.dataset.pick); return; }
+  if (el.dataset.delabs !== undefined) { D.absences.splice(+el.dataset.delabs, 1); S.dirty = true; render(); return; }
+  if (el.dataset.delperson) { const k = el.dataset.delperson; if (el.dataset.sure) { D.people = D.people.filter(p => p.key !== k); if (S.person===k) S.person=""; S.dirty = true; render(); } else { el.dataset.sure = "1"; el.textContent = "Confirmar"; } return; }
+  const ks = monthKeys(), i = ks.indexOf(S.month);
+  switch (el.dataset.act) {
+    case "prev": if (i>0) { S.month = ks[i-1]; render(); } break;
+    case "next": if (i<ks.length-1) { S.month = ks[i+1]; render(); } break;
+    case "pdf": openPdfChoice(); break;
+    case "pdfperson": closeModal(); pdfPerson(); break;
+    case "pdfmonth": closeModal(); pdfMonth(); break;
+    case "pdfnow": closeModal(); S.person ? pdfPerson() : pdfMonth(); break;
+    case "wa": openShare(); break;
+    case "genhtml": genStatic(); break;
+    case "copywa": { const ta = document.getElementById("wa-text"); const done = () => toast("Texto copiado.");
+      try { navigator.clipboard.writeText(ta.value).then(done, () => { ta.select(); toast("Texto selecionado. Use copiar do seu aparelho."); }); } catch(e) { ta.select(); } break; }
+    case "close": closeModal(); break;
+    case "edit": S.editMode = !S.editMode; S.view = S.editMode ? "edit" : (store.get("view")||"cal"); render(); break;
+    case "publish": publish(); break;
+    case "discard": D = JSON.parse(document.getElementById("escala-data").textContent); S.dirty = false; if (!D.months[S.month]) S.month = monthKeys().slice(-1)[0]; render(); break;
+    case "newmonth": { const k = nextKey(); D.months[k] = blankMonth(k); S.month = k; S.dirty = true; render(); toast(`${monthLabel(k)} criado em branco. Preencha ou cole da planilha.`); break; }
+    case "delmonth": if (el.dataset.sure) { delete D.months[S.month]; S.month = monthKeys().slice(-1)[0]; S.dirty = true; render(); } else { el.dataset.sure = "1"; el.textContent = "Confirmar exclusão"; } break;
+    case "paste": showModal(`<h3>Colar da planilha</h3><div class="help">No Excel, selecione as linhas da escala (colunas: dia, dia da semana, 07–13, 13–19, 19–07 e, se houver, Obs.), copie e cole aqui. As cores não vêm no colar: depois marque as situações com os símbolos (<code>!</code> <code>^</code> <code>@</code> <code>( )</code>). Isto substitui os dias de ${monthLabel(S.month)}.</div>
+        <textarea id="paste-in" placeholder="1&#9;QUI&#9;MAIRA&#9;THALES/GABRIEL&#9;FABRICIO"></textarea>
+        <div class="row"><button class="btn primary" data-act="dopaste">Aplicar</button><span class="spacer"></span><button class="btn" data-act="close">Cancelar</button></div>`); break;
+    case "dopaste": { const days = pasteParse(document.getElementById("paste-in").value); if (!days.length) { toast("Nenhuma linha começando com o número do dia foi encontrada."); break; } D.months[S.month].days = days; closeModal(); S.dirty = true; render(); toast(`${days.length} dias carregados.`); break; }
+    case "exportjson": saveFile(`escala-uti-backup-${TODAY}.json`, JSON.stringify(D, null, 1)); break;
+    case "addabs": { const f = document.getElementById("na-f").value, to = document.getElementById("na-to").value;
+      if (!f) { toast("Informe a data de início."); break; } if (to && to < f) { toast("A data de fim é anterior ao início."); break; }
+      D.absences.push({p: document.getElementById("na-p").value, t: document.getElementById("na-t").value, from: f, to: to || "", note: document.getElementById("na-n").value.trim()}); S.dirty = true; render(); break; }
+    case "addperson": { const k = document.getElementById("np-k").value.normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/[^A-Z]/g,"");
+      if (!k) { toast("Informe o nome como aparece na escala."); break; } if (D.people.some(p => p.key === k)) { toast("Esse nome já está na equipe."); break; }
+      const s = document.getElementById("np-s").value.trim() || k.charAt(0)+k.slice(1).toLowerCase();
+      D.people.push({key:k, short:s, name:document.getElementById("np-n").value.trim()||s, mat:document.getElementById("np-m").value.trim(), aniv:document.getElementById("np-a").value.trim()}); S.dirty = true; render(); break; }
+  }
+}
+app.addEventListener("click", onClick);
+app.addEventListener("change", ev => {
+  const t = ev.target;
+  if (t.dataset.f === "person") return setPerson(t.value);
+  if (t.dataset.f === "status") { S.status = t.value; render(); return; }
+  if (t.dataset.f === "showAbs") { S.showAbs = t.checked; store.set("showAbs", t.checked?"1":"0"); render(); return; }
+  if (t.dataset.abst) { S.absType[t.dataset.abst] = t.checked; render(); return; }
+  if (t.dataset.cell) { const [d,sid] = t.dataset.cell.split("|"); const day = D.months[S.month].days.find(x => x.d === d); day[sid] = parseCell(t.value);
+    t.value = toCell(day[sid]); const known = new Set(D.people.map(p => p.key)); t.classList.toggle("warn", day[sid].some(e => !known.has(e.p))); markDirty(); return; }
+  if (t.dataset.tag) { const day = D.months[S.month].days.find(x => x.d === t.dataset.tag); day.tag = t.value.trim(); markDirty(); return; }
+  if (t.id === "e-hol") { D.holidays = (D.holidays||[]).filter(h => !h.d.startsWith(S.month));
+    t.value.split(";").map(x => x.trim()).filter(Boolean).forEach(x => { const [dd,...n] = x.split("="); if (/^\d{1,2}$/.test(dd.trim())) D.holidays.push({d: S.month+"-"+pad(+dd.trim()), name: n.join("=").trim() || "Feriado"}); }); markDirty(); return; }
+  if (t.id === "imp" && t.files?.[0]) { const r = new FileReader(); r.onload = () => { try { const x = JSON.parse(r.result); if (!x.months || !x.people) throw 0; D = x; S.month = monthKeys().slice(-1)[0]; S.dirty = true; render(); toast("Backup importado. Publique para valer para todos."); } catch(e) { toast("Esse arquivo não é um backup da escala."); } }; r.readAsText(t.files[0]); }
+});
+
+render();
+(async () => {
+  try {
+    const u = !STATIC && window.claude?.use ? await window.claude.use("user") : null;
+    if (u) { S.canEdit = await u.canEdit(); render(); }
+  } catch(e) {}
+})();
+})();
+</script>
+</body></html>
